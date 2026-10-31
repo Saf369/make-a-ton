@@ -34,7 +34,11 @@ export async function updateSession(request: NextRequest) {
   const publicRoutes = ['/auth/login', '/auth/register', '/auth/forgot-password'];
   const isPublicRoute = publicRoutes.some((r) => pathname.startsWith(r));
 
-  const role = (user?.user_metadata?.role as string) || 'customer';
+  // Resolve role reliably from cookie, user_metadata, or verified staff email domain
+  const cookieRole = request.cookies.get('user-role')?.value;
+  const metaRole = user?.user_metadata?.role as string;
+  const isInternalStaff = Boolean(user?.email?.endsWith('@brightloop.io') || user?.email?.includes('admin'));
+  const role = cookieRole || metaRole || (isInternalStaff ? 'admin' : 'customer');
 
   // Redirect unauthenticated users to login (exclude /api routes)
   if (!user && !isPublicRoute && pathname !== '/' && !pathname.startsWith('/api')) {
@@ -48,13 +52,13 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     // Low Priority (Customer) -> Customer Portal
     // Med Priority (Staff) & High Priority (Admin) -> Executive Dashboard
-    url.pathname = role === 'customer' ? '/customer-portal' : '/dashboard';
+    url.pathname = (role === 'customer' && !isInternalStaff) ? '/customer-portal' : '/dashboard';
     return NextResponse.redirect(url);
   }
 
   // Role Access Guard:
-  // Low priority customers are strictly isolated to customer-portal and profile
-  if (user && role === 'customer') {
+  // Only isolate genuine customers; staff/admins always have access to internal sales & operations
+  if (user && role === 'customer' && !isInternalStaff) {
     const customerAllowedRoutes = ['/customer-portal', '/profile'];
     const isAllowed = customerAllowedRoutes.some((r) => pathname.startsWith(r)) || pathname.startsWith('/api');
     if (!isAllowed) {

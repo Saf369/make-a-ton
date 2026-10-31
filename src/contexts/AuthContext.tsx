@@ -53,15 +53,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq('id', userId)
         .maybeSingle();
 
+      let currentRole = 'customer';
       if (data && !error) {
         setProfile(data as UserProfile);
+        currentRole = data.role || 'customer';
       } else if (userEmail) {
+        currentRole = userMeta?.role || (userEmail.endsWith('@brightloop.io') ? 'admin' : 'customer');
         // Fallback profile representation if not yet fetched
         setProfile({
           id: userId,
           email: userEmail,
           full_name: userMeta?.full_name || userEmail.split('@')[0],
-          role: userMeta?.role || 'customer',
+          role: currentRole as any,
           organization: userMeta?.organization || 'Brightloop Hub',
           department: userMeta?.department || '',
           title: userMeta?.title || '',
@@ -71,6 +74,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           timezone: 'UTC+04:00',
           language: 'English (United States)'
         });
+      }
+
+      if (typeof document !== 'undefined') {
+        document.cookie = `user-role=${currentRole}; path=/; max-age=86400; SameSite=Lax`;
       }
     } catch (err) {
       console.error('Error fetching profile:', err);
@@ -134,7 +141,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         userRole = userProfile.role || 'customer';
         setProfile(userProfile);
       } else {
-        userRole = (data.user.user_metadata?.role as any) || 'customer';
+        userRole = (data.user.user_metadata?.role as any) || (data.user.email?.endsWith('@brightloop.io') ? 'admin' : 'customer');
+      }
+
+      if (typeof document !== 'undefined') {
+        document.cookie = `user-role=${userRole}; path=/; max-age=86400; SameSite=Lax`;
       }
     }
     return { error, role: userRole, profile: userProfile };
@@ -153,6 +164,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = async () => {
+    if (typeof document !== 'undefined') {
+      document.cookie = 'user-role=; path=/; max-age=0; SameSite=Lax';
+    }
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
