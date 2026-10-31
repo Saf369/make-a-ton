@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Mail, ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -17,19 +18,8 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-[#3B3486] flex items-center justify-center text-white font-bold text-xl shadow-md">
-              <span className="bg-gradient-to-tr from-amber-300 to-indigo-200 bg-clip-text text-transparent">B</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-xl tracking-tight text-slate-900">Brightloop</span>
-                <span className="px-1.5 py-0.5 text-[10px] font-bold uppercase bg-indigo-600 text-white rounded">
-                  Hub
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 font-medium">Subscription Management System</p>
-            </div>
+          <Link href="/dashboard">
+            <Logo variant="light" size="lg" showTagline={true} />
           </Link>
         </div>
 

@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { Logo } from '@/components/ui/Logo';
 import {
   LayoutDashboard,
   Globe,
@@ -128,22 +129,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
         }`}
       >
         {/* Brand / Logo */}
-        <div className="h-16 px-5 border-b border-white/10 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center text-white font-bold text-lg shadow-inner ring-1 ring-white/20 group-hover:bg-white/25 transition-all">
-              <span className="bg-gradient-to-tr from-amber-300 to-indigo-200 bg-clip-text text-transparent">B</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm tracking-tight text-white">Brightloop</span>
-                <span className="px-1.5 py-0.5 text-[9px] font-extrabold uppercase bg-indigo-500/80 text-white rounded">
-                  Hub
-                </span>
-              </div>
-              <p className="text-[10px] text-indigo-200 font-medium tracking-wide">
-                Subscription Suite
-              </p>
-            </div>
+        <div className="h-18 px-5 border-b border-white/10 flex items-center justify-between">
+          <Link href="/dashboard" className="flex items-center group">
+            <Logo variant="white" size="sm" showTagline={true} />
           </Link>
 
           {/* Close button for mobile */}
