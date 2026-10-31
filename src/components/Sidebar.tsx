@@ -14,13 +14,10 @@ import {
   UserCheck,
   UserCircle,
   Package,
-  FolderKanban,
-  Layers,
   Puzzle,
   Zap,
   Repeat,
   FileText,
-  FileCode,
   FileSpreadsheet,
   ShoppingCart,
   Receipt,
@@ -86,8 +83,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
       name: 'SUBSCRIPTION MODULE',
       items: [
         { name: 'Products', href: '/products', icon: Package },
-        { name: 'Product Categories', href: '/product-categories', icon: FolderKanban },
-        { name: 'Product Variants', href: '/product-variants', icon: Layers },
         { name: 'Add-ons', href: '/add-ons', icon: Puzzle },
         { name: 'Subscription Plans', href: '/subscription-plans', icon: Zap },
         { name: 'Subscriptions', href: '/subscriptions', icon: Repeat },
@@ -97,7 +92,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
     {
       name: 'SALES MODULE',
       items: [
-        { name: 'Quotation Templates', href: '/quotation-templates', icon: FileCode },
         { name: 'Quotations', href: '/quotations', icon: FileSpreadsheet },
         { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
         { name: 'Tax Templates', href: '/tax-templates', icon: Receipt },
@@ -140,8 +134,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
         name: 'SUBSCRIPTIONS & CATALOGUE',
         items: [
           { name: 'Products', href: '/products', icon: Package },
-          { name: 'Product Categories', href: '/product-categories', icon: FolderKanban },
-          { name: 'Product Variants', href: '/product-variants', icon: Layers },
           { name: 'Add-ons', href: '/add-ons', icon: Puzzle },
           { name: 'Subscription Plans', href: '/subscription-plans', icon: Zap },
           { name: 'Subscriptions', href: '/subscriptions', icon: Repeat },
@@ -151,7 +143,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
       {
         name: 'SALES & INVOICING',
         items: [
-          { name: 'Quotation Templates', href: '/quotation-templates', icon: FileCode },
           { name: 'Quotations', href: '/quotations', icon: FileSpreadsheet },
           { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
           { name: 'Sales Invoices', href: '/sales-invoices', icon: FileCheck2 },
