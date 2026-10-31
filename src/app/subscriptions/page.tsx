@@ -45,12 +45,18 @@ export default function SubscriptionsPage() {
     billing_interval_count: '1',
     agreed_price: '',
     currency: 'USD',
-    start_date: new Date().toISOString().split('T')[0],
+    start_date: '',
     auto_renew: true,
     notes: '',
   });
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      start_date: prev.start_date || new Date().toISOString().split('T')[0],
+    }));
+    loadData();
+  }, []);
 
   async function loadData() {
     try {
