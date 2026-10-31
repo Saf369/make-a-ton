@@ -33,6 +33,7 @@ import {
   CreditCard,
   Building2,
   ChevronDown,
+  ShieldCheck,
   X
 } from 'lucide-react';
 
@@ -62,7 +63,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
       items: [
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
         { name: 'Customer Portal', href: '/customer-portal', icon: Globe },
-        { name: 'Reports', href: '/reports', icon: BarChart3 }
+        { name: 'Reports', href: '/reports', icon: BarChart3 },
+        { name: 'QA & Isolation Audit', href: '/qa-verification', icon: ShieldCheck }
       ]
     },
     {
