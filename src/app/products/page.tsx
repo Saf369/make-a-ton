@@ -1,32 +1,59 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { DataTable, Column } from '@/components/ui/DataTable';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
 import { StatCard } from '@/components/ui/StatCard';
-import { PRODUCTS_DATA } from '@/data/mockData';
-import { Package, Layers, Tag, DollarSign } from 'lucide-react';
+import { getProducts, createProduct, deleteProduct } from '@/lib/actions/subscription';
+import { getCategories } from '@/lib/actions/subscription';
+import type { Product, ProductCategory, BillingModel } from '@/lib/types/subscription';
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState(PRODUCTS_DATA);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
-    category: 'Software Platforms',
-    type: 'Recurring SaaS',
-    basePrice: '$199.00 / mo'
+    category_id: '',
+    billing_model: 'recurring' as BillingModel,
+    sales_price: '',
+    cost_price: '',
+    notes: '',
   });
 
-  const columns: Column<typeof PRODUCTS_DATA[0]>[] = [
-    {
-      key: 'id',
-      header: 'Product ID',
-      width: 'w-24',
-      render: (item) => <span className="font-mono font-medium text-slate-800">{item.id}</span>
-    },
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  async function loadData() {
+    try {
+      setLoading(true);
+      setError(null);
+      const [prods, cats] = await Promise.all([getProducts(), getCategories()]);
+      setProducts(prods);
+      setCategories(cats);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to load products');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const billingModelLabel: Record<BillingModel, string> = {
+    recurring: 'Recurring SaaS',
+    usage_based: 'Usage-Based',
+    annual_license: 'Annual License',
+    one_time: 'One-Time Fee',
+  };
+
+  const columns: Column<Product>[] = [
     {
       key: 'name',
       header: 'Product Name',
@@ -35,75 +62,114 @@ export default function ProductsPage() {
           <div className="font-semibold text-slate-900">{item.name}</div>
           <div className="text-slate-400 font-mono text-[11px]">{item.sku}</div>
         </div>
-      )
+      ),
     },
     {
-      key: 'category',
+      key: 'category_id',
       header: 'Category',
       render: (item) => (
         <span className="font-medium text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md text-[11px]">
-          {item.category}
+          {item.category?.name ?? '—'}
         </span>
-      )
+      ),
     },
     {
-      key: 'type',
-      header: 'Billing Model'
+      key: 'billing_model',
+      header: 'Billing Model',
+      render: (item) => (
+        <span className="text-slate-700 text-xs">{billingModelLabel[item.billing_model]}</span>
+      ),
     },
     {
-      key: 'basePrice',
-      header: 'Base Price',
-      render: (item) => <span className="font-bold text-slate-900">{item.basePrice}</span>
+      key: 'sales_price',
+      header: 'Sales Price',
+      render: (item) => (
+        <span className="font-bold text-slate-900">${Number(item.sales_price).toFixed(2)}</span>
+      ),
     },
     {
-      key: 'status',
-      header: 'Status'
-    }
+      key: 'cost_price',
+      header: 'Cost Price',
+      render: (item) => (
+        <span className="text-slate-500">${Number(item.cost_price).toFixed(2)}</span>
+      ),
+    },
+    {
+      key: 'is_active',
+      header: 'Status',
+      render: (item) => <Badge status={item.is_active ? 'Active' : 'Inactive'} />,
+    },
   ];
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    const newProduct = {
-      id: `PROD-10${products.length + 1}`,
-      name: formData.name || 'New SaaS Product',
-      sku: formData.sku || `BL-SKU-${products.length + 1}`,
-      category: formData.category,
-      type: formData.type,
-      basePrice: formData.basePrice || '$99.00 / mo',
-      status: 'Active'
-    };
-    setProducts([newProduct, ...products]);
-    setIsModalOpen(false);
-    setFormData({ name: '', sku: '', category: 'Software Platforms', type: 'Recurring SaaS', basePrice: '$199.00 / mo' });
+    startTransition(async () => {
+      try {
+        const created = await createProduct({
+          name: formData.name,
+          sku: formData.sku,
+          category_id: formData.category_id || null,
+          billing_model: formData.billing_model,
+          sales_price: parseFloat(formData.sales_price) || 0,
+          cost_price: parseFloat(formData.cost_price) || 0,
+          notes: formData.notes || null,
+        });
+        setProducts((prev) => [created, ...prev]);
+        setIsModalOpen(false);
+        setFormData({ name: '', sku: '', category_id: '', billing_model: 'recurring', sales_price: '', cost_price: '', notes: '' });
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to create product');
+      }
+    });
   };
+
+  const handleDelete = (item: Product) => {
+    if (!confirm(`Remove product "${item.name}"? This cannot be undone.`)) return;
+    startTransition(async () => {
+      try {
+        await deleteProduct(item.id);
+        setProducts((prev) => prev.filter((p) => p.id !== item.id));
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to delete product');
+      }
+    });
+  };
+
+  const activeCount = products.filter((p) => p.is_active).length;
 
   return (
     <DashboardLayout title="Products Catalog" moduleName="SUBSCRIPTION MODULE">
       <div className="space-y-6">
-        {/* Top Product Stats */}
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+            <span className="font-semibold">Error:</span> {error}
+            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-700 font-bold">✕</button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard
             title="Active Products"
-            value="18 SKUs"
-            change="+2 this quarter"
+            value={`${activeCount} SKUs`}
+            change={`${products.length} total`}
             trend="up"
-            period="catalog count"
+            period="in catalog"
             iconName="Package"
           />
           <StatCard
-            title="Avg Product ARPU"
-            value="$420.00"
-            change="+6.2%"
-            trend="up"
-            period="per active subscription"
+            title="Avg Sales Price"
+            value={products.length ? `$${(products.reduce((s, p) => s + Number(p.sales_price), 0) / products.length).toFixed(2)}` : '$0'}
+            change="across all products"
+            trend="neutral"
+            period="per product"
             iconName="DollarSign"
           />
           <StatCard
-            title="Product Categories"
-            value="4 Taxonomies"
-            change="100% active"
+            title="Categories"
+            value={`${categories.length} segments`}
+            change="organized taxonomy"
             trend="neutral"
-            period="organized"
+            period="active"
             iconName="Layers"
           />
         </div>
@@ -113,26 +179,32 @@ export default function ProductsPage() {
           subtitle="Define recurring software services, metered billing products, and standalone licenses"
           data={products}
           columns={columns}
-          searchPlaceholder="Search products by title or SKU..."
+          searchPlaceholder="Search products by name or SKU..."
           searchKey="name"
           addNewLabel="Add Product"
           onAddNew={() => setIsModalOpen(true)}
-          onExport={() => alert('Exporting product catalog to CSV...')}
-          onView={(item) => alert(`Viewing details for ${item.name}`)}
-          onEdit={(item) => alert(`Editing product: ${item.name}`)}
-          onDelete={(item) => {
-            if (confirm(`Remove product ${item.name}?`)) {
-              setProducts(products.filter((p) => p.id !== item.id));
-            }
+          onExport={() => {
+            const csv = [
+              ['Name', 'SKU', 'Category', 'Billing Model', 'Sales Price', 'Cost Price', 'Status'],
+              ...products.map((p) => [p.name, p.sku, p.category?.name ?? '', billingModelLabel[p.billing_model], p.sales_price, p.cost_price, p.is_active ? 'Active' : 'Inactive']),
+            ].map((r) => r.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'products.csv';
+            a.click();
           }}
-          filterKey="status"
+          onView={(item) => alert(`Product: ${item.name}\nSKU: ${item.sku}\nSales Price: $${item.sales_price}\nCost: $${item.cost_price}\nNotes: ${item.notes ?? 'None'}`)}
+          onEdit={(item) => alert(`Edit product: ${item.name} — (edit form coming in next iteration)`)}
+          onDelete={handleDelete}
+          filterKey="is_active"
           filterOptions={[
-            { label: 'Active', value: 'Active' },
-            { label: 'Maintenance', value: 'Maintenance' }
+            { label: 'Active', value: true as unknown as string },
+            { label: 'Inactive', value: false as unknown as string },
           ]}
         />
 
-        {/* Add Product Modal */}
         <Modal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -150,16 +222,17 @@ export default function ProductsPage() {
               <button
                 type="submit"
                 form="add-product-form"
-                className="px-4 py-1.5 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-xs"
+                disabled={isPending}
+                className="px-4 py-1.5 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-xs disabled:opacity-50"
               >
-                Save Product
+                {isPending ? 'Saving...' : 'Save Product'}
               </button>
             </>
           }
         >
           <form id="add-product-form" onSubmit={handleCreate} className="space-y-4 text-xs">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Product Title</label>
+              <label className="block font-semibold text-slate-700 mb-1">Product Title *</label>
               <input
                 type="text"
                 required
@@ -172,7 +245,7 @@ export default function ProductsPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">SKU / Code</label>
+                <label className="block font-semibold text-slate-700 mb-1">SKU / Code *</label>
                 <input
                   type="text"
                   required
@@ -182,48 +255,72 @@ export default function ProductsPage() {
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                 />
               </div>
-
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Base Price</label>
+                <label className="block font-semibold text-slate-700 mb-1">Category</label>
+                <select
+                  value={formData.category_id}
+                  onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
+                >
+                  <option value="">— None —</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Billing Model *</label>
+              <select
+                value={formData.billing_model}
+                onChange={(e) => setFormData({ ...formData, billing_model: e.target.value as BillingModel })}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
+              >
+                <option value="recurring">Recurring SaaS</option>
+                <option value="usage_based">Usage-Based (Metered)</option>
+                <option value="annual_license">Annual License</option>
+                <option value="one_time">One-Time Fee</option>
+              </select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Sales Price ($) *</label>
                 <input
-                  type="text"
+                  type="number"
+                  step="0.01"
+                  min="0"
                   required
-                  value={formData.basePrice}
-                  onChange={(e) => setFormData({ ...formData, basePrice: e.target.value })}
-                  placeholder="e.g. $149.00 / mo"
+                  value={formData.sales_price}
+                  onChange={(e) => setFormData({ ...formData, sales_price: e.target.value })}
+                  placeholder="199.00"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Cost Price ($)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.cost_price}
+                  onChange={(e) => setFormData({ ...formData, cost_price: e.target.value })}
+                  placeholder="45.00"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Category</label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
-                >
-                  <option>Software Platforms</option>
-                  <option>Developer Tools</option>
-                  <option>Data & Analytics</option>
-                  <option>Services</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Billing Model</label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
-                >
-                  <option>Recurring SaaS</option>
-                  <option>Usage-Based (Metered)</option>
-                  <option>Annual License</option>
-                  <option>One-Time Fee</option>
-                </select>
-              </div>
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Notes</label>
+              <textarea
+                rows={2}
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                placeholder="Internal notes about this product..."
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
+              />
             </div>
           </form>
         </Modal>
