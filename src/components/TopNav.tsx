@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Menu,
   Search,
@@ -14,6 +15,7 @@ import {
   CheckCircle2,
   AlertCircle
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TopNavProps {
   onOpenMobileSidebar: () => void;
@@ -26,8 +28,22 @@ export const TopNav: React.FC<TopNavProps> = ({
   title,
   moduleName
 }) => {
+  const router = useRouter();
+  const { user, profile, signOut } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const handleSignOut = async () => {
+    setShowUserMenu(false);
+    await signOut();
+    router.push('/auth/login');
+    router.refresh();
+  };
+
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
+  const displayEmail = profile?.email || user?.email || 'admin@brightloop.io';
+  const displayRole = profile?.role ? profile.role.toUpperCase() : 'USER';
+  const initial = (displayName[0] || 'U').toUpperCase();
 
   return (
     <header className="h-16 bg-white border-b border-slate-200/80 sticky top-0 z-30 px-4 sm:px-6 flex items-center justify-between">
@@ -150,16 +166,21 @@ export const TopNav: React.FC<TopNavProps> = ({
             className="flex items-center gap-2 p-1 pl-2 text-xs font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition-colors border border-transparent hover:border-slate-200"
           >
             <div className="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs ring-2 ring-indigo-100">
-              A
+              {initial}
             </div>
-            <span className="hidden sm:inline font-semibold text-slate-800">Admin</span>
+            <span className="hidden sm:inline font-semibold text-slate-800 max-w-[120px] truncate">{displayName}</span>
           </button>
 
           {showUserMenu && (
             <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 text-xs">
               <div className="px-4 py-2 border-b border-slate-100">
-                <p className="font-semibold text-slate-900">Admin Manager</p>
-                <p className="text-[11px] text-slate-500">admin@brightloop.io</p>
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold text-slate-900 truncate">{displayName}</p>
+                  <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700">
+                    {displayRole}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 truncate">{displayEmail}</p>
               </div>
 
               <div className="py-1">
@@ -182,14 +203,14 @@ export const TopNav: React.FC<TopNavProps> = ({
               </div>
 
               <div className="border-t border-slate-100 pt-1">
-                <Link
-                  href="/auth/login"
-                  onClick={() => setShowUserMenu(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-rose-600 hover:bg-rose-50 transition-colors"
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="w-full text-left flex items-center gap-2 px-4 py-2 text-rose-600 hover:bg-rose-50 transition-colors"
                 >
                   <LogOut className="w-4 h-4 text-rose-500" />
                   <span>Sign Out</span>
-                </Link>
+                </button>
               </div>
             </div>
           )}

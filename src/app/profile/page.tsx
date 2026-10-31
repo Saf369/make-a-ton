@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Badge } from '@/components/ui/Badge';
+import { useAuth } from '@/contexts/AuthContext';
+import { createClient } from '@/lib/supabase/client';
 import {
   User,
   Shield,
@@ -13,18 +15,128 @@ import {
   Mail,
   Phone,
   Clock,
-  Save
+  Save,
+  Loader2,
+  AlertCircle,
+  Lock
 } from 'lucide-react';
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications'>('profile');
-  const [savedMessage, setSavedMessage] = useState(false);
+  const { user, profile, updateProfile, refreshProfile } = useAuth();
+  const supabase = createClient();
 
-  const handleSave = (e: React.FormEvent) => {
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications'>('profile');
+  const [isSaving, setIsSaving] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Profile Form State
+  const [formData, setFormData] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    organization: '',
+    department: '',
+    language: 'English (United States)',
+    timezone: 'UTC+04:00 (Muscat, Abu Dhabi, Dubai)'
+  });
+
+  // Password Change State
+  const [passwordState, setPasswordState] = useState({
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
+  // Notification Preferences State
+  const [notifications, setNotifications] = useState({
+    billingSummary: true,
+    paymentFailure: true,
+    newOrders: true,
+    licenseQuota: true
+  });
+  const [notifSuccess, setNotifSuccess] = useState(false);
+
+  // Sync profile data into form when profile loads
+  useEffect(() => {
+    if (profile || user) {
+      setFormData({
+        full_name: profile?.full_name || user?.user_metadata?.full_name || '',
+        email: profile?.email || user?.email || '',
+        phone: profile?.phone || '',
+        organization: profile?.organization || 'Brightloop Hub',
+        department: profile?.department || '',
+        language: profile?.language || 'English (United States)',
+        timezone: profile?.timezone || 'UTC+04:00 (Muscat, Abu Dhabi, Dubai)'
+      });
+    }
+  }, [profile, user]);
+
+  const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSavedMessage(true);
-    setTimeout(() => setSavedMessage(false), 3000);
+    setIsSaving(true);
+    setSuccessMessage(null);
+    setErrorMessage(null);
+
+    const { error } = await updateProfile({
+      full_name: formData.full_name,
+      phone: formData.phone,
+      organization: formData.organization,
+      department: formData.department,
+      language: formData.language,
+      timezone: formData.timezone
+    });
+
+    setIsSaving(false);
+
+    if (error) {
+      setErrorMessage(error.message || 'Failed to update profile');
+    } else {
+      setSuccessMessage('Profile and account details successfully updated in database!');
+      setTimeout(() => setSuccessMessage(null), 4000);
+      await refreshProfile();
+    }
   };
+
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError(null);
+    setPasswordSuccess(null);
+
+    if (passwordState.newPassword.length < 8) {
+      setPasswordError('Password must be at least 8 characters long');
+      return;
+    }
+
+    if (passwordState.newPassword !== passwordState.confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+
+    setIsUpdatingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: passwordState.newPassword
+      });
+
+      if (error) throw error;
+
+      setPasswordSuccess('Your password was updated successfully!');
+      setPasswordState({ newPassword: '', confirmPassword: '' });
+      setTimeout(() => setPasswordSuccess(null), 4000);
+    } catch (err: any) {
+      setPasswordError(err.message || 'Failed to update password');
+    } finally {
+      setIsUpdatingPassword(false);
+    }
+  };
+
+  const displayName = profile?.full_name || user?.email?.split('@')[0] || 'User Profile';
+  const displayRole = profile?.role ? profile.role.toUpperCase() : 'USER';
+  const displayEmail = profile?.email || user?.email || 'user@brightloop.io';
+  const initial = (displayName[0] || 'U').toUpperCase();
 
   return (
     <DashboardLayout title="User Profile & Account Settings" moduleName="USER MODULE">
@@ -33,43 +145,48 @@ export default function ProfilePage() {
         <div className="bg-white rounded-xl border border-slate-200/90 p-6 shadow-xs flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left">
             <div className="w-20 h-20 rounded-2xl bg-[#3B3486] text-white flex items-center justify-center font-bold text-2xl shadow-md border-2 border-indigo-200">
-              A
+              {initial}
             </div>
             <div>
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                <h2 className="text-xl font-bold text-slate-900">Vrinda Techapps</h2>
-                <Badge status="Active" />
+                <h2 className="text-xl font-bold text-slate-900">{displayName}</h2>
+                <Badge status={profile?.is_active ?? true ? 'Active' : 'Inactive'} />
                 <span className="text-[11px] bg-indigo-50 text-indigo-700 font-semibold px-2 py-0.5 rounded-md">
-                  System Manager
+                  {displayRole === 'ADMIN' ? 'Super Admin (Full Hub Access)' : `${displayRole} Operator`}
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                admin@brightloop.io &bull; Tenant: Vrinda Techapps Ltd. &bull; Registered Office: Oman
+                {displayEmail} &bull; Tenant: {profile?.organization || 'Brightloop Hub'} &bull; Dept: {profile?.department || 'Executive'}
               </p>
               <div className="mt-3 flex items-center gap-4 text-xs text-slate-400">
-                <span>Last login: 10 mins ago</span>
+                <span>Database ID: {profile?.id ? `${profile.id.slice(0, 8)}…` : 'Connected'}</span>
                 <span>&bull;</span>
-                <span>Timezone: UTC+04:00 (Gulf Standard Time)</span>
+                <span>Timezone: {formData.timezone.split(' ')[0]}</span>
               </div>
             </div>
           </div>
 
           <button
-            onClick={() => {
-              setSavedMessage(true);
-              setTimeout(() => setSavedMessage(false), 3000);
-            }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-xs"
+            onClick={handleProfileSave}
+            disabled={isSaving}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-60 shadow-xs"
           >
-            <Save className="w-3.5 h-3.5" />
+            {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
             <span>Save Changes</span>
           </button>
         </div>
 
-        {savedMessage && (
+        {/* Global Feedback Banner */}
+        {successMessage && (
           <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Profile and security preferences successfully updated!</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{successMessage}</span>
+          </div>
+        )}
+        {errorMessage && (
+          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{errorMessage}</span>
           </div>
         )}
 
@@ -98,13 +215,15 @@ export default function ProfilePage() {
         {activeTab === 'profile' && (
           <div className="bg-white rounded-xl border border-slate-200/90 p-6 shadow-xs">
             <h3 className="text-sm font-semibold text-slate-900 mb-4">Account Information</h3>
-            <form onSubmit={handleSave} className="space-y-4 text-xs">
+            <form onSubmit={handleProfileSave} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">Display Name</label>
                   <input
                     type="text"
-                    defaultValue="Vrinda Techapps"
+                    required
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   />
                 </div>
@@ -114,7 +233,7 @@ export default function ProfilePage() {
                   <input
                     type="text"
                     disabled
-                    value="System Manager (Full Access)"
+                    value={`${displayRole} — Managed by System Security`}
                     className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-500 cursor-not-allowed"
                   />
                 </div>
@@ -125,8 +244,9 @@ export default function ProfilePage() {
                   <label className="block font-semibold text-slate-700 mb-1">Work Email</label>
                   <input
                     type="email"
-                    defaultValue="admin@brightloop.io"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    disabled
+                    value={formData.email}
+                    className="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-slate-500 cursor-not-allowed"
                   />
                 </div>
 
@@ -134,7 +254,33 @@ export default function ProfilePage() {
                   <label className="block font-semibold text-slate-700 mb-1">Direct Phone</label>
                   <input
                     type="tel"
-                    defaultValue="+968 24 123456"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="+968 24 123456"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Organization / Tenant</label>
+                  <input
+                    type="text"
+                    value={formData.organization}
+                    onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
+                    placeholder="e.g. Brightloop Hub"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Department</label>
+                  <input
+                    type="text"
+                    value={formData.department}
+                    onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                    placeholder="e.g. Finance & Accounting"
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   />
                 </div>
@@ -143,7 +289,11 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">System Language</label>
-                  <select className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none">
+                  <select
+                    value={formData.language}
+                    onChange={(e) => setFormData({ ...formData, language: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
+                  >
                     <option>English (United States)</option>
                     <option>Arabic (العربية)</option>
                   </select>
@@ -151,7 +301,11 @@ export default function ProfilePage() {
 
                 <div>
                   <label className="block font-semibold text-slate-700 mb-1">Timezone</label>
-                  <select className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none">
+                  <select
+                    value={formData.timezone}
+                    onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
+                  >
                     <option>UTC+04:00 (Muscat, Abu Dhabi, Dubai)</option>
                     <option>UTC+03:00 (Riyadh, Kuwait)</option>
                     <option>UTC+00:00 (London, GMT)</option>
@@ -163,9 +317,11 @@ export default function ProfilePage() {
               <div className="pt-4 flex justify-end">
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-xs"
+                  disabled={isSaving}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-60 shadow-xs"
                 >
-                  Save Profile Information
+                  {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>Save Profile Information</span>
                 </button>
               </div>
             </form>
@@ -176,39 +332,60 @@ export default function ProfilePage() {
         {activeTab === 'security' && (
           <div className="space-y-6">
             <div className="bg-white rounded-xl border border-slate-200/90 p-6 shadow-xs text-xs space-y-4">
-              <h3 className="text-sm font-semibold text-slate-900">Change Password</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Current Password</label>
-                  <input
-                    type="password"
-                    placeholder="••••••••••••"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg"
-                  />
+              <h3 className="text-sm font-semibold text-slate-900">Change Account Password</h3>
+              <p className="text-slate-500">
+                Update your Supabase authentication password. You will need to use this new password on your next login.
+              </p>
+
+              {passwordSuccess && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>{passwordSuccess}</span>
                 </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">New Password</label>
-                  <input
-                    type="password"
-                    placeholder="New password"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg"
-                  />
+              )}
+
+              {passwordError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-rose-600" />
+                  <span>{passwordError}</span>
                 </div>
-                <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Confirm Password</label>
-                  <input
-                    type="password"
-                    placeholder="Confirm new password"
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg"
-                  />
+              )}
+
+              <form onSubmit={handlePasswordUpdate} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">New Password</label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="Min. 8 characters"
+                      value={passwordState.newPassword}
+                      onChange={(e) => setPasswordState({ ...passwordState, newPassword: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Confirm New Password</label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="Confirm new password"
+                      value={passwordState.confirmPassword}
+                      onChange={(e) => setPasswordState({ ...passwordState, confirmPassword: e.target.value })}
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
+                    />
+                  </div>
                 </div>
-              </div>
-              <button
-                onClick={() => alert('Password successfully changed!')}
-                className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-xs"
-              >
-                Update Password
-              </button>
+
+                <button
+                  type="submit"
+                  disabled={isUpdatingPassword}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-60 shadow-xs"
+                >
+                  {isUpdatingPassword && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>Update Password</span>
+                </button>
+              </form>
             </div>
 
             <div className="bg-white rounded-xl border border-slate-200/90 p-6 shadow-xs text-xs space-y-3">
@@ -218,9 +395,8 @@ export default function ProfilePage() {
               </p>
               <div className="flex items-center gap-3">
                 <span className="font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
-                  2FA Authenticator Enabled
+                  Account Protected via Supabase Auth
                 </span>
-                <button className="text-indigo-600 hover:underline">Reconfigure</button>
               </div>
             </div>
           </div>
@@ -230,24 +406,75 @@ export default function ProfilePage() {
         {activeTab === 'notifications' && (
           <div className="bg-white rounded-xl border border-slate-200/90 p-6 shadow-xs text-xs space-y-4">
             <h3 className="text-sm font-semibold text-slate-900">Automated Notification Rules</h3>
+            <p className="text-slate-500">Select which automated system alerts you want to receive.</p>
+
+            {notifSuccess && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>Notification preferences saved!</span>
+              </div>
+            )}
+
             <div className="space-y-3">
-              {[
-                { title: 'Nightly Billing Run Summary', desc: 'Receive email digest whenever recurring billing charges execute' },
-                { title: 'Payment Failure / Dunning Alerts', desc: 'Immediate notification if high-value enterprise invoice payment fails' },
-                { title: 'New Subscription Orders', desc: 'Real-time alert when customers self-serve upgrade via checkout' },
-                { title: 'License Quota Exceeded Warnings', desc: 'Warn when customers reach 90% and 100% of seat capacities' }
-              ].map((item) => (
-                <label key={item.title} className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
-                  <input type="checkbox" defaultChecked className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4" />
-                  <div>
-                    <p className="font-semibold text-slate-800">{item.title}</p>
-                    <p className="text-slate-400 text-[11px]">{item.desc}</p>
-                  </div>
-                </label>
-              ))}
+              <label className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={notifications.billingSummary}
+                  onChange={(e) => setNotifications({ ...notifications, billingSummary: e.target.checked })}
+                  className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                />
+                <div>
+                  <p className="font-semibold text-slate-800">Nightly Billing Run Summary</p>
+                  <p className="text-slate-400 text-[11px]">Receive email digest whenever recurring billing charges execute</p>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={notifications.paymentFailure}
+                  onChange={(e) => setNotifications({ ...notifications, paymentFailure: e.target.checked })}
+                  className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                />
+                <div>
+                  <p className="font-semibold text-slate-800">Payment Failure / Dunning Alerts</p>
+                  <p className="text-slate-400 text-[11px]">Immediate notification if high-value enterprise invoice payment fails</p>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={notifications.newOrders}
+                  onChange={(e) => setNotifications({ ...notifications, newOrders: e.target.checked })}
+                  className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                />
+                <div>
+                  <p className="font-semibold text-slate-800">New Subscription Orders</p>
+                  <p className="text-slate-400 text-[11px]">Real-time alert when customers self-serve upgrade via checkout</p>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 hover:bg-slate-50 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={notifications.licenseQuota}
+                  onChange={(e) => setNotifications({ ...notifications, licenseQuota: e.target.checked })}
+                  className="mt-0.5 rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                />
+                <div>
+                  <p className="font-semibold text-slate-800">License Quota Exceeded Warnings</p>
+                  <p className="text-slate-400 text-[11px]">Warn when customers reach 90% and 100% of seat capacities</p>
+                </div>
+              </label>
             </div>
+
             <button
-              onClick={() => alert('Preferences saved!')}
+              type="button"
+              onClick={() => {
+                setNotifSuccess(true);
+                setTimeout(() => setNotifSuccess(false), 3000);
+              }}
               className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-xs"
             >
               Save Notification Preferences
