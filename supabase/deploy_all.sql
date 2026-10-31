@@ -1900,10 +1900,15 @@ INSERT INTO public.payments (
 
 INSERT INTO public.payment_allocations (
   payment_id, invoice_id, allocated_amount
-) VALUES (
+)
+SELECT
   '0f000000-0000-0000-0000-000000000001',
   '0d000000-0000-0000-0000-000000000001',
   47198.82
-) ON CONFLICT (payment_id, invoice_id) DO NOTHING;
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.payment_allocations
+  WHERE payment_id = '0f000000-0000-0000-0000-000000000001'
+    AND invoice_id = '0d000000-0000-0000-0000-000000000001'
+);
 
 

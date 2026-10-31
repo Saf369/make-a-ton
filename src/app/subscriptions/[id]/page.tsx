@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useTransition, Suspense } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -33,7 +33,7 @@ const STATUS_COLORS: Record<SubscriptionStatus, string> = {
   past_due: 'text-red-700 bg-red-50 border-red-200',
 };
 
-export default function SubscriptionDetailPage() {
+function SubscriptionDetailContent() {
   const params = useParams();
   const router = useRouter();
   const id = params?.id as string;
@@ -469,5 +469,13 @@ export default function SubscriptionDetailPage() {
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function SubscriptionDetailPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-64 text-slate-500">Loading...</div>}>
+      <SubscriptionDetailContent />
+    </Suspense>
   );
 }
