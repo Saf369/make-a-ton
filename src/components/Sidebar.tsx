@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Logo } from '@/components/ui/Logo';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   LayoutDashboard,
   Globe,
@@ -31,6 +32,7 @@ import {
   Building2,
   ChevronDown,
   ShieldCheck,
+  Shield,
   X
 } from 'lucide-react';
 
@@ -52,9 +54,16 @@ interface ModuleGroup {
 
 export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) => {
   const pathname = usePathname();
+  const { profile, user } = useAuth();
 
-  // Exactly the 4 required modules:
-  const modules: ModuleGroup[] = [
+  // Role Priority Hierarchy:
+  // - High Priority: 'admin' (Controls whole system, manages staff, billing runs, rules)
+  // - Medium Priority: 'staff' (Day-to-day operations, no staff addition)
+  // - Low Priority: 'customer' (Isolated portal access to their own subscriptions/invoices)
+  const role = profile?.role || (user?.user_metadata?.role as 'admin' | 'staff' | 'customer') || 'admin';
+
+  // Base module definitions
+  const allModules: ModuleGroup[] = [
     {
       name: 'MANAGEMENT MODULE',
       items: [
@@ -100,6 +109,62 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
       ]
     }
   ];
+
+  // Dynamic Filtering by Role Priority per PDF specification:
+  let modules: ModuleGroup[] = [];
+
+  if (role === 'customer') {
+    // Low Priority: Customer sees ONLY portal and personal profile
+    modules = [
+      {
+        name: 'CUSTOMER PORTAL (LOW PRIORITY)',
+        items: [
+          { name: 'My Subscriptions & Invoices', href: '/customer-portal', icon: Globe },
+          { name: 'My Profile', href: '/profile', icon: UserCircle }
+        ]
+      }
+    ];
+  } else if (role === 'staff') {
+    // Medium Priority: Staff handles day-to-day work with limited access
+    // Per PDF: "Only the admin can add a new member of staff" -> hide /users and /staff
+    modules = [
+      {
+        name: 'OPERATIONS MODULE (MED PRIORITY)',
+        items: [
+          { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+          { name: 'Customer Management', href: '/customers', icon: UserCheck },
+          { name: 'Reports', href: '/reports', icon: BarChart3 }
+        ]
+      },
+      {
+        name: 'SUBSCRIPTIONS & CATALOGUE',
+        items: [
+          { name: 'Products', href: '/products', icon: Package },
+          { name: 'Product Categories', href: '/product-categories', icon: FolderKanban },
+          { name: 'Product Variants', href: '/product-variants', icon: Layers },
+          { name: 'Add-ons', href: '/add-ons', icon: Puzzle },
+          { name: 'Subscription Plans', href: '/subscription-plans', icon: Zap },
+          { name: 'Subscriptions', href: '/subscriptions', icon: Repeat },
+          { name: 'Subscription Details', href: '/subscription-details', icon: FileText }
+        ]
+      },
+      {
+        name: 'SALES & INVOICING',
+        items: [
+          { name: 'Quotation Templates', href: '/quotation-templates', icon: FileCode },
+          { name: 'Quotations', href: '/quotations', icon: FileSpreadsheet },
+          { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
+          { name: 'Sales Invoices', href: '/sales-invoices', icon: FileCheck2 },
+          { name: 'Payment Entries', href: '/payment-entries', icon: CreditCard },
+          { name: 'Payment Terms', href: '/payment-terms', icon: CalendarClock },
+          { name: 'User Profile', href: '/profile', icon: UserCircle }
+        ]
+      }
+    ];
+  } else {
+    // High Priority: Admin controls the whole system
+    modules = allModules;
+  }
 
   const isCurrentActive = (href: string) => {
     if (href === '/dashboard' && (pathname === '/' || pathname === '/dashboard')) {
@@ -171,7 +236,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
           ))}
         </div>
 
-        {/* Bottom Profile / Tenant Card (matches screenshot) */}
+        {/* Bottom Profile / Tenant Card with Priority Level */}
         <div className="p-3 border-t border-white/10 bg-[#342D75]">
           <Link
             href="/profile"
@@ -182,8 +247,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
                 <Building2 className="w-4 h-4 text-indigo-100" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-medium text-white truncate">Vrinda Techapps</p>
-                <p className="text-[10px] text-indigo-200 truncate">System Manager</p>
+                <p className="text-xs font-semibold text-white truncate">
+                  {profile?.organization || profile?.full_name || (role === 'admin' ? 'Brightloop Admin' : 'Customer Account')}
+                </p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider ${
+                    role === 'admin'
+                      ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
+                      : role === 'staff'
+                      ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30'
+                      : 'bg-blue-400/20 text-blue-300 border border-blue-400/30'
+                  }`}>
+                    {role === 'admin' ? 'High Priority' : role === 'staff' ? 'Med Priority' : 'Low Priority'}
+                  </span>
+                  <span className="text-[10px] text-indigo-200 capitalize truncate">{role}</span>
+                </div>
               </div>
             </div>
             <ChevronDown className="w-4 h-4 text-indigo-200 shrink-0" />

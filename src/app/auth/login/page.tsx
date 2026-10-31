@@ -22,7 +22,7 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const { error } = await signIn(email, password);
+    const { error, role } = await signIn(email, password);
 
     if (error) {
       setError(error.message);
@@ -30,7 +30,15 @@ export default function LoginPage() {
       return;
     }
 
-    router.push('/dashboard');
+    // Role Priority Routing per PDF Specification:
+    // Low priority (Customer): Redirect directly to /customer-portal (isolated view)
+    // Medium priority (Staff): Redirect to /dashboard (day-to-day operations)
+    // High priority (Admin): Redirect to /dashboard (full system control)
+    if (role === 'customer') {
+      router.push('/customer-portal');
+    } else {
+      router.push('/dashboard');
+    }
     router.refresh();
   };
 
@@ -140,19 +148,20 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Quick Demo Credentials */}
+          {/* Quick Demo Credentials by Priority */}
           <div className="mt-4 pt-4 border-t border-slate-100">
-            <p className="text-[11px] font-medium text-slate-500 mb-2">Demo Credentials (One-click fill):</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="text-[11px] font-semibold text-slate-600 mb-2">Test Role Priorities (One-click fill):</p>
+            <div className="flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => {
                   setEmail('admin@brightloop.io');
                   setPassword('Admin@123');
                 }}
-                className="px-2.5 py-1 text-[11px] font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-md transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 text-[11px] font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors border border-indigo-200/50"
               >
-                Super Admin (admin@)
+                <span><strong>High Priority</strong> (Admin &bull; Full Access)</span>
+                <span className="font-mono text-[10px] text-indigo-500">admin@</span>
               </button>
               <button
                 type="button"
@@ -160,9 +169,21 @@ export default function LoginPage() {
                   setEmail('sarah.j@brightloop.io');
                   setPassword('Staff@123');
                 }}
-                className="px-2.5 py-1 text-[11px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-md transition-colors"
+                className="flex items-center justify-between px-3 py-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors border border-emerald-200/50"
               >
-                Staff Manager (sarah.j@)
+                <span><strong>Medium Priority</strong> (Staff &bull; Operations)</span>
+                <span className="font-mono text-[10px] text-emerald-600">sarah.j@</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('rvance@acmetech.com');
+                  setPassword('Customer@123');
+                }}
+                className="flex items-center justify-between px-3 py-1.5 text-[11px] font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors border border-amber-200/50"
+              >
+                <span><strong>Low Priority</strong> (Customer &bull; Portal Only)</span>
+                <span className="font-mono text-[10px] text-amber-600">rvance@</span>
               </button>
             </div>
           </div>

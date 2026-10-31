@@ -34,6 +34,8 @@ export async function updateSession(request: NextRequest) {
   const publicRoutes = ['/auth/login', '/auth/register', '/auth/forgot-password'];
   const isPublicRoute = publicRoutes.some((r) => pathname.startsWith(r));
 
+  const role = (user?.user_metadata?.role as string) || 'customer';
+
   // Redirect unauthenticated users to login (exclude /api routes)
   if (!user && !isPublicRoute && pathname !== '/' && !pathname.startsWith('/api')) {
     const url = request.nextUrl.clone();
@@ -41,11 +43,25 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from auth pages
-  if (user && isPublicRoute) {
+  // Redirect authenticated users away from auth pages or root based on role priority
+  if (user && (isPublicRoute || pathname === '/')) {
     const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
+    // Low Priority (Customer) -> Customer Portal
+    // Med Priority (Staff) & High Priority (Admin) -> Executive Dashboard
+    url.pathname = role === 'customer' ? '/customer-portal' : '/dashboard';
     return NextResponse.redirect(url);
+  }
+
+  // Role Access Guard:
+  // Low priority customers are strictly isolated to customer-portal and profile
+  if (user && role === 'customer') {
+    const customerAllowedRoutes = ['/customer-portal', '/profile'];
+    const isAllowed = customerAllowedRoutes.some((r) => pathname.startsWith(r)) || pathname.startsWith('/api');
+    if (!isAllowed) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/customer-portal';
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

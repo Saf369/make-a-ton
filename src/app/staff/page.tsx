@@ -19,6 +19,7 @@ import {
   Phone,
   Globe
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface StaffRecord {
   id: string;
@@ -35,6 +36,9 @@ interface StaffRecord {
 }
 
 export default function StaffPage() {
+  const { profile } = useAuth();
+  const isAdmin = profile?.role === 'admin';
+
   const [staff, setStaff] = useState<StaffRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -116,6 +120,10 @@ export default function StaffPage() {
   // Create Staff
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isAdmin) {
+      showNotification('error', 'Security Policy: Only the administrator can add a new member of staff.');
+      return;
+    }
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/users', {
@@ -358,7 +366,13 @@ export default function StaffPage() {
             searchPlaceholder="Search staff by name, title or department..."
             searchKey="name"
             addNewLabel="Add Staff"
-            onAddNew={() => setIsAddModalOpen(true)}
+            onAddNew={() => {
+              if (!isAdmin) {
+                showNotification('error', 'Security Policy: Only the administrator can add a new member of staff.');
+                return;
+              }
+              setIsAddModalOpen(true);
+            }}
             onExport={handleExportCSV}
             onView={(item) => {
               setSelectedStaff(item);

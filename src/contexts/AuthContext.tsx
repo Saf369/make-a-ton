@@ -28,7 +28,7 @@ interface AuthContextType {
   session: Session | null;
   profile: UserProfile | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null; role?: 'admin' | 'staff' | 'customer'; profile?: UserProfile | null }>;
   signUp: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: Error | null }>;
@@ -119,10 +119,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    let userRole: 'admin' | 'staff' | 'customer' = 'customer';
+    let userProfile: UserProfile | null = null;
+
     if (!error && data.user) {
-      await fetchProfile(data.user.id, data.user.email, data.user.user_metadata);
+      const { data: prof } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (prof) {
+        userProfile = prof as UserProfile;
+        userRole = userProfile.role || 'customer';
+        setProfile(userProfile);
+      } else {
+        userRole = (data.user.user_metadata?.role as any) || 'customer';
+      }
     }
-    return { error };
+    return { error, role: userRole, profile: userProfile };
   };
 
   const signUp = async (email: string, password: string, metadata?: Record<string, unknown>) => {
