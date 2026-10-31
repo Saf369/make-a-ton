@@ -71,6 +71,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
       ]
     },
     {
+      name: 'SUBSCRIPTION MODULE',
+      items: [
+        { name: 'Products', href: '/products', icon: Package },
+        { name: 'Add-ons', href: '/add-ons', icon: Puzzle },
+        { name: 'Subscription Plans', href: '/subscription-plans', icon: Zap },
+        { name: 'Subscriptions', href: '/subscriptions', icon: Repeat },
+        { name: 'Subscription Details', href: '/subscription-details', icon: FileText }
+      ]
+    },
+    {
       name: 'SALES MODULE',
       items: [
         { name: 'Quotations', href: '/quotations', icon: FileSpreadsheet },
@@ -81,16 +91,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
         { name: 'Billing Runs', href: '/billing-runs', icon: RefreshCw },
         { name: 'Sales Invoices', href: '/sales-invoices', icon: FileCheck2 },
         { name: 'Payment Entries', href: '/payment-entries', icon: CreditCard }
-      ]
-    },
-    {
-      name: 'SUBSCRIPTION MODULE',
-      items: [
-        { name: 'Products', href: '/products', icon: Package },
-        { name: 'Add-ons', href: '/add-ons', icon: Puzzle },
-        { name: 'Subscription Plans', href: '/subscription-plans', icon: Zap },
-        { name: 'Subscriptions', href: '/subscriptions', icon: Repeat },
-        { name: 'Subscription Details', href: '/subscription-details', icon: FileText }
       ]
     },
     {
@@ -131,6 +131,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
         ]
       },
       {
+        name: 'SUBSCRIPTIONS & CATALOGUE',
+        items: [
+          { name: 'Products', href: '/products', icon: Package },
+          { name: 'Add-ons', href: '/add-ons', icon: Puzzle },
+          { name: 'Subscription Plans', href: '/subscription-plans', icon: Zap },
+          { name: 'Subscriptions', href: '/subscriptions', icon: Repeat },
+          { name: 'Subscription Details', href: '/subscription-details', icon: FileText }
+        ]
+      },
+      {
         name: 'SALES & INVOICING',
         items: [
           { name: 'Quotations', href: '/quotations', icon: FileSpreadsheet },
@@ -139,16 +149,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
           { name: 'Payment Entries', href: '/payment-entries', icon: CreditCard },
           { name: 'Payment Terms', href: '/payment-terms', icon: CalendarClock },
           { name: 'User Profile', href: '/profile', icon: UserCircle }
-        ]
-      },
-      {
-        name: 'SUBSCRIPTIONS & CATALOGUE',
-        items: [
-          { name: 'Products', href: '/products', icon: Package },
-          { name: 'Add-ons', href: '/add-ons', icon: Puzzle },
-          { name: 'Subscription Plans', href: '/subscription-plans', icon: Zap },
-          { name: 'Subscriptions', href: '/subscriptions', icon: Repeat },
-          { name: 'Subscription Details', href: '/subscription-details', icon: FileText }
         ]
       }
     ];

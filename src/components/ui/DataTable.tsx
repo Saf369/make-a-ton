@@ -194,7 +194,8 @@ export function DataTable<T extends Record<string, any>>({
               paginatedData.map((item, rowIdx) => (
                 <tr
                   key={item.id || rowIdx}
-                  className="hover:bg-slate-50/80 transition-colors group"
+                  onClick={() => onView && onView(item)}
+                  className={`hover:bg-slate-50/80 transition-colors group ${onView ? 'cursor-pointer' : ''}`}
                 >
                   {columns.map((col, colIdx) => (
                     <td key={String(col.key) + colIdx} className="py-3.5 px-4 text-slate-700">

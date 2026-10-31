@@ -1,18 +1,22 @@
 'use client';
 
 import React, { useState, useEffect, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { DataTable, Column } from '@/components/ui/DataTable';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
 import { StatCard } from '@/components/ui/StatCard';
+import { Layers, ArrowRight } from 'lucide-react';
 import { getProducts, createProduct, deleteProduct } from '@/lib/actions/subscription';
 import { getCategories } from '@/lib/actions/subscription';
 import type { Product, ProductCategory, BillingModel } from '@/lib/types/subscription';
 
 export default function ProductsPage() {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -195,8 +199,8 @@ export default function ProductsPage() {
             a.download = 'products.csv';
             a.click();
           }}
-          onView={(item) => alert(`Product: ${item.name}\nSKU: ${item.sku}\nSales Price: $${item.sales_price}\nCost: $${item.cost_price}\nNotes: ${item.notes ?? 'None'}`)}
-          onEdit={(item) => alert(`Edit product: ${item.name} — (edit form coming in next iteration)`)}
+          onView={(item) => setSelectedProduct(item)}
+          onEdit={(item) => setSelectedProduct(item)}
           onDelete={handleDelete}
           filterKey="is_active"
           filterOptions={[
@@ -204,6 +208,57 @@ export default function ProductsPage() {
             { label: 'Inactive', value: false as unknown as string },
           ]}
         />
+
+        {/* Selected Product Modal with Manage Variants button */}
+        {selectedProduct && (
+          <Modal
+            isOpen={Boolean(selectedProduct)}
+            onClose={() => setSelectedProduct(null)}
+            title={`Product: ${selectedProduct.name}`}
+            subtitle="Catalog product details, pricing, and variant configuration"
+            footer={
+              <div className="flex items-center justify-between w-full">
+                <button
+                  type="button"
+                  onClick={() => setSelectedProduct(null)}
+                  className="px-3.5 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push('/product-variants')}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-xs"
+                >
+                  <span>Manage Variants</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            }
+          >
+            <div className="space-y-4 text-xs">
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-xs font-bold text-slate-700">{selectedProduct.sku}</span>
+                  <Badge status={selectedProduct.is_active ? 'Active' : 'Inactive'} />
+                </div>
+                <p className="text-sm font-bold text-slate-900">{selectedProduct.name}</p>
+                <p className="text-slate-600">{selectedProduct.notes || 'Core catalog subscription software product.'}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="p-3 bg-white rounded-lg border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Sales Price</span>
+                  <span className="font-bold text-slate-900 text-sm">${Number(selectedProduct.sales_price).toFixed(2)}</span>
+                </div>
+                <div className="p-3 bg-white rounded-lg border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block">Cost Price</span>
+                  <span className="font-bold text-slate-600 text-sm">${Number(selectedProduct.cost_price).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}
 
         <Modal
           isOpen={isModalOpen}

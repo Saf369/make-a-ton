@@ -11,6 +11,7 @@ import {
   CustomerQuotation,
   CustomerSubscriptionItem
 } from '@/lib/managementData';
+import { QuotationDocumentModal, QuotationDocItem } from '@/components/QuotationDocumentModal';
 import {
   CreditCard,
   Download,
@@ -44,6 +45,7 @@ export default function CustomerPortalPage() {
   // Interactive Modal States
   const [viewingInvoice, setViewingInvoice] = useState<CustomerInvoiceItem | null>(null);
   const [payingInvoice, setPayingInvoice] = useState<CustomerInvoiceItem | null>(null);
+  const [selectedQuoteDoc, setSelectedQuoteDoc] = useState<QuotationDocItem | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<'Credit Card' | 'UPI' | 'Bank Transfer'>('Credit Card');
   const [actionNotice, setActionNotice] = useState<string | null>(null);
 
@@ -54,6 +56,40 @@ export default function CustomerPortalPage() {
   const showNotice = (msg: string) => {
     setActionNotice(msg);
     setTimeout(() => setActionNotice(null), 4000);
+  };
+
+  const openQuoteDocument = (q: CustomerQuotation) => {
+    const quoteDocItem: QuotationDocItem = {
+      id: q.id,
+      brandName: 'BRIGHTLOOP\nSOFTWARE',
+      brandTagline: 'DRIVEN BY TRUST.',
+      customer: customer.name,
+      company: customer.companyName,
+      customerId: customer.id,
+      contactName: customer.name,
+      address: customer.billingAddress,
+      phone: customer.phone,
+      title: q.templateName,
+      projectDescription: `Commercial offer for ${q.templateName} prepared for ${customer.companyName}.`,
+      date: q.date,
+      expiryDate: q.validUntil,
+      total: `$${q.total.toFixed(2)}`,
+      currency: '$',
+      subtotal: q.subtotal,
+      tax: q.tax,
+      others: 0,
+      grandTotal: q.total,
+      status: q.status,
+      rep: customer.accountManager || 'Elena Rostova',
+      repEmail: `${(customer.accountManager || 'sales').toLowerCase().replace(/\s+/g, '.')}@brightloop.io`,
+      items: q.items.map((it) => ({
+        description: it.product,
+        qty: it.qty,
+        price: it.unitPrice,
+        total: it.total
+      }))
+    };
+    setSelectedQuoteDoc(quoteDocItem);
   };
 
   const handlePayInvoice = (e: React.FormEvent) => {
@@ -336,25 +372,46 @@ export default function CustomerPortalPage() {
                     </tr>
                   ) : (
                     quotations.map((q) => (
-                      <tr key={q.id} className="hover:bg-slate-50/70">
-                        <td className="py-3 px-4 font-mono font-medium text-slate-900">{q.id}</td>
-                        <td className="py-3 px-4 text-slate-800 font-medium">{q.templateName}</td>
+                      <tr
+                        key={q.id}
+                        onClick={() => openQuoteDocument(q)}
+                        className="hover:bg-indigo-50/40 cursor-pointer transition-colors group"
+                      >
+                        <td className="py-3 px-4 font-mono font-medium text-indigo-600 group-hover:underline">
+                          {q.id}
+                        </td>
+                        <td className="py-3 px-4 text-slate-800 font-medium">
+                          <div className="flex items-center gap-1.5">
+                            <span>{q.templateName}</span>
+                            <span className="text-[10px] text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                              (View Sheet)
+                            </span>
+                          </div>
+                        </td>
                         <td className="py-3 px-4 text-slate-500">{q.date}</td>
                         <td className="py-3 px-4 text-slate-500">{q.validUntil}</td>
                         <td className="py-3 px-4 text-slate-600">${q.subtotal.toFixed(2)}</td>
                         <td className="py-3 px-4 font-bold text-slate-900">${q.total.toFixed(2)}</td>
                         <td className="py-3 px-4"><Badge status={q.status} /></td>
-                        <td className="py-3 px-4 text-right">
-                          {q.status === 'Sent' ? (
+                        <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-end gap-1.5">
                             <button
-                              onClick={() => handleAcceptQuote(q.id)}
-                              className="px-2.5 py-1 text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-md shadow-2xs"
+                              type="button"
+                              onClick={() => openQuoteDocument(q)}
+                              className="px-2.5 py-1 text-xs font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-md shadow-2xs"
                             >
-                              Accept Quote
+                              View Sheet
                             </button>
-                          ) : (
-                            <span className="text-[11px] text-slate-400">No action</span>
-                          )}
+                            {q.status === 'Sent' && (
+                              <button
+                                type="button"
+                                onClick={() => handleAcceptQuote(q.id)}
+                                className="px-2.5 py-1 text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-md shadow-2xs"
+                              >
+                                Accept Quote
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -735,6 +792,17 @@ export default function CustomerPortalPage() {
             </form>
           </Modal>
         )}
+
+        {/* Official Custom Quotation Document Sheet Modal */}
+        <QuotationDocumentModal
+          isOpen={Boolean(selectedQuoteDoc)}
+          onClose={() => setSelectedQuoteDoc(null)}
+          quotation={selectedQuoteDoc}
+          onApprove={(quote) => {
+            handleAcceptQuote(quote.id);
+            setSelectedQuoteDoc(null);
+          }}
+        />
       </div>
     </DashboardLayout>
   );
