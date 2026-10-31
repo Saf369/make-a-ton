@@ -12,9 +12,6 @@ import {
   Briefcase,
   UserCheck,
   UserCircle,
-  LogIn,
-  UserPlus,
-  KeyRound,
   Package,
   FolderKanban,
   Layers,
@@ -73,10 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
         { name: 'User Management', href: '/users', icon: Users },
         { name: 'Staff Management', href: '/staff', icon: Briefcase },
         { name: 'Customer Management', href: '/customers', icon: UserCheck },
-        { name: 'User Profile', href: '/profile', icon: UserCircle },
-        { name: 'Login', href: '/auth/login', icon: LogIn },
-        { name: 'Registration', href: '/auth/register', icon: UserPlus },
-        { name: 'Forgot Password', href: '/auth/forgot-password', icon: KeyRound }
+        { name: 'User Profile', href: '/profile', icon: UserCircle }
       ]
     },
     {
