@@ -71,12 +71,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
       ]
     },
     {
-      name: 'USER MODULE',
+      name: 'SALES MODULE',
       items: [
-        { name: 'User Management', href: '/users', icon: Users },
-        { name: 'Staff Management', href: '/staff', icon: Briefcase },
-        { name: 'Customer Management', href: '/customers', icon: UserCheck },
-        { name: 'User Profile', href: '/profile', icon: UserCircle }
+        { name: 'Quotations', href: '/quotations', icon: FileSpreadsheet },
+        { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
+        { name: 'Tax Templates', href: '/tax-templates', icon: Receipt },
+        { name: 'Pricing Rules', href: '/pricing-rules', icon: Percent },
+        { name: 'Payment Terms', href: '/payment-terms', icon: CalendarClock },
+        { name: 'Billing Runs', href: '/billing-runs', icon: RefreshCw },
+        { name: 'Sales Invoices', href: '/sales-invoices', icon: FileCheck2 },
+        { name: 'Payment Entries', href: '/payment-entries', icon: CreditCard }
       ]
     },
     {
@@ -90,16 +94,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
       ]
     },
     {
-      name: 'SALES MODULE',
+      name: 'USER MODULE',
       items: [
-        { name: 'Quotations', href: '/quotations', icon: FileSpreadsheet },
-        { name: 'Sales Orders', href: '/sales-orders', icon: ShoppingCart },
-        { name: 'Tax Templates', href: '/tax-templates', icon: Receipt },
-        { name: 'Pricing Rules', href: '/pricing-rules', icon: Percent },
-        { name: 'Payment Terms', href: '/payment-terms', icon: CalendarClock },
-        { name: 'Billing Runs', href: '/billing-runs', icon: RefreshCw },
-        { name: 'Sales Invoices', href: '/sales-invoices', icon: FileCheck2 },
-        { name: 'Payment Entries', href: '/payment-entries', icon: CreditCard }
+        { name: 'User Management', href: '/users', icon: Users },
+        { name: 'Staff Management', href: '/staff', icon: Briefcase },
+        { name: 'Customer Management', href: '/customers', icon: UserCheck },
+        { name: 'User Profile', href: '/profile', icon: UserCircle }
       ]
     }
   ];
@@ -131,16 +131,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
         ]
       },
       {
-        name: 'SUBSCRIPTIONS & CATALOGUE',
-        items: [
-          { name: 'Products', href: '/products', icon: Package },
-          { name: 'Add-ons', href: '/add-ons', icon: Puzzle },
-          { name: 'Subscription Plans', href: '/subscription-plans', icon: Zap },
-          { name: 'Subscriptions', href: '/subscriptions', icon: Repeat },
-          { name: 'Subscription Details', href: '/subscription-details', icon: FileText }
-        ]
-      },
-      {
         name: 'SALES & INVOICING',
         items: [
           { name: 'Quotations', href: '/quotations', icon: FileSpreadsheet },
@@ -149,6 +139,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
           { name: 'Payment Entries', href: '/payment-entries', icon: CreditCard },
           { name: 'Payment Terms', href: '/payment-terms', icon: CalendarClock },
           { name: 'User Profile', href: '/profile', icon: UserCircle }
+        ]
+      },
+      {
+        name: 'SUBSCRIPTIONS & CATALOGUE',
+        items: [
+          { name: 'Products', href: '/products', icon: Package },
+          { name: 'Add-ons', href: '/add-ons', icon: Puzzle },
+          { name: 'Subscription Plans', href: '/subscription-plans', icon: Zap },
+          { name: 'Subscriptions', href: '/subscriptions', icon: Repeat },
+          { name: 'Subscription Details', href: '/subscription-details', icon: FileText }
         ]
       }
     ];
