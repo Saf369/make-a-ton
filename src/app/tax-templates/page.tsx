@@ -13,9 +13,9 @@ export default function TaxTemplatesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    countryRegion: '',
-    rate: '5.00%',
-    taxType: 'Value Added Tax (VAT)'
+    countryRegion: 'India (Inter-state)',
+    rate: '18.00%',
+    taxType: 'Goods & Services Tax (GST)'
   });
 
   const columns: Column<typeof TAX_TEMPLATES_DATA[0]>[] = [
@@ -57,23 +57,23 @@ export default function TaxTemplatesPage() {
     e.preventDefault();
     const newTax = {
       id: `TAX-0${taxes.length + 1}`,
-      name: formData.name || 'New Regional Tax Rate',
-      countryRegion: formData.countryRegion || 'Global',
+      name: formData.name || 'GST Standard Rate 18%',
+      countryRegion: formData.countryRegion || 'India',
       rate: formData.rate,
       taxType: formData.taxType,
       status: 'Active'
     };
     setTaxes([newTax, ...taxes]);
     setIsModalOpen(false);
-    setFormData({ name: '', countryRegion: '', rate: '5.00%', taxType: 'Value Added Tax (VAT)' });
+    setFormData({ name: '', countryRegion: 'India (Inter-state)', rate: '18.00%', taxType: 'Goods & Services Tax (GST)' });
   };
 
   return (
     <DashboardLayout title="Tax Templates" moduleName="SALES MODULE">
       <div className="space-y-6">
         <DataTable
-          title="Tax Rules & Jurisdictions"
-          subtitle="Define statutory tax percentages, GCC VAT, EU OSS digital rules, and US sales tax mappings"
+          title="GST Tax Rules & Jurisdictions"
+          subtitle="Define statutory GST percentages (CGST, SGST, IGST), reverse charge schedules, and export/SEZ zero-rating"
           data={taxes}
           columns={columns}
           searchPlaceholder="Search tax templates..."
@@ -95,7 +95,7 @@ export default function TaxTemplatesPage() {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           title="Add Tax Template"
-          subtitle="Configure a tax rate applied automatically during subscription billing runs"
+          subtitle="Configure a GST tax rate applied automatically during subscription billing runs"
           footer={
             <>
               <button
@@ -123,7 +123,7 @@ export default function TaxTemplatesPage() {
                 required
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="e.g. UK Standard VAT 20%"
+                placeholder="e.g. IGST 18% (Inter-State B2B)"
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
@@ -136,7 +136,7 @@ export default function TaxTemplatesPage() {
                   required
                   value={formData.countryRegion}
                   onChange={(e) => setFormData({ ...formData, countryRegion: e.target.value })}
-                  placeholder="e.g. United Kingdom"
+                  placeholder="e.g. India (Inter-state)"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
                 />
               </div>
@@ -148,7 +148,7 @@ export default function TaxTemplatesPage() {
                   required
                   value={formData.rate}
                   onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
-                  placeholder="20.00%"
+                  placeholder="18.00%"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
                 />
               </div>
@@ -161,10 +161,12 @@ export default function TaxTemplatesPage() {
                 onChange={(e) => setFormData({ ...formData, taxType: e.target.value })}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
               >
-                <option>Value Added Tax (VAT)</option>
-                <option>Sales Tax</option>
-                <option>Digital Goods Consumption Tax</option>
-                <option>Zero-Rated / B2B Reverse Charge</option>
+                <option>Goods & Services Tax (GST)</option>
+                <option>Integrated GST (IGST 18%)</option>
+                <option>Central GST + State GST (CGST 9% + SGST 9%)</option>
+                <option>Concessional GST (5%)</option>
+                <option>Zero-Rated / SEZ Export (0%)</option>
+                <option>Reverse Charge Mechanism (RCM)</option>
               </select>
             </div>
           </form>

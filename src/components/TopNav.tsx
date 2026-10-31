@@ -104,7 +104,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                       <p className="font-semibold text-slate-900">12 New Orders</p>
                       <span className="text-[10px] text-slate-400">10m ago</span>
                     </div>
-                    <p className="text-slate-500 mt-0.5">Orders worth $18,500 received today via checkout.</p>
+                    <p className="text-slate-500 mt-0.5">Orders worth ₹1,85,000 received today via checkout.</p>
                     <Link
                       href="/sales-orders"
                       onClick={() => setShowNotifications(false)}

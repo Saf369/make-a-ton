@@ -6,9 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --experimental-strip-types --test tests/money.test.ts tests/billing-dates.test.ts tests/schema-dependency.test.ts"
   },
   "dependencies": {
+    "decimal.js": "^10.6.0",
     "lucide-react": "^1.65.0",
     "next": "16.4.3",
     "react": "19.3.0",

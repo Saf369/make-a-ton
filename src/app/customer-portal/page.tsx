@@ -88,8 +88,8 @@ export default function CustomerPortalPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-black text-slate-900">$14,400.00</p>
-                    <p className="text-xs text-slate-400">per year (excl. VAT)</p>
+                    <p className="text-2xl font-black text-slate-900">₹14,40,000.00</p>
+                    <p className="text-xs text-slate-400">per year (excl. GST)</p>
                   </div>
                 </div>
 
@@ -134,14 +134,14 @@ export default function CustomerPortalPage() {
                       <p className="font-medium text-slate-900">Dedicated Dedicated IP (2 instances)</p>
                       <p className="text-slate-400">High deliverability static outbound IPs</p>
                     </div>
-                    <span className="font-semibold text-slate-800">$50.00 / mo</span>
+                    <span className="font-semibold text-slate-800">₹4,000.00 / mo</span>
                   </div>
                   <div className="flex items-center justify-between p-3 rounded-lg border border-slate-100 bg-slate-50/50 text-xs">
                     <div>
                       <p className="font-medium text-slate-900">24/7 Dedicated Concierge Support</p>
                       <p className="text-slate-400">15-minute guaranteed SLA response time</p>
                     </div>
-                    <span className="font-semibold text-slate-800">$299.00 / mo</span>
+                    <span className="font-semibold text-slate-800">₹25,000.00 / mo</span>
                   </div>
                 </div>
               </div>
@@ -206,9 +206,9 @@ export default function CustomerPortalPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {[
-                  { id: 'INV-2026-0982', date: 'Oct 15, 2026', amount: '$14,400.00', status: 'Paid' },
-                  { id: 'INV-2025-0540', date: 'Oct 15, 2025', amount: '$14,400.00', status: 'Paid' },
-                  { id: 'INV-2024-0112', date: 'Oct 15, 2024', amount: '$12,000.00', status: 'Paid' }
+                  { id: 'INV-2026-0982', date: 'Oct 15, 2026', amount: '₹16,99,200.00', status: 'Paid' },
+                  { id: 'INV-2025-0540', date: 'Oct 15, 2025', amount: '₹16,99,200.00', status: 'Paid' },
+                  { id: 'INV-2024-0112', date: 'Oct 15, 2024', amount: '₹14,16,000.00', status: 'Paid' }
                 ].map((row) => (
                   <tr key={row.id} className="hover:bg-slate-50/70">
                     <td className="py-3 px-4 font-mono font-medium text-slate-900">{row.id}</td>

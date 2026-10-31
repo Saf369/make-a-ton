@@ -6,15 +6,16 @@ import { DataTable, Column } from '@/components/ui/DataTable';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
 import { QUOTATIONS_DATA } from '@/data/mockData';
-import { FileSpreadsheet, Send, CheckCircle, Clock } from 'lucide-react';
+import { FileSpreadsheet, Send, CheckCircle, Clock, Building2, User, Calendar, IndianRupee } from 'lucide-react';
 
 export default function QuotationsPage() {
   const [quotations, setQuotations] = useState(QUOTATIONS_DATA);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewingQuote, setViewingQuote] = useState<typeof QUOTATIONS_DATA[0] | null>(null);
   const [formData, setFormData] = useState({
     customer: '',
     title: '',
-    total: '$15,000.00',
+    total: '₹1,50,000.00',
     expiryDate: '2026-11-30',
     rep: 'Elena Rostova'
   });
@@ -69,7 +70,7 @@ export default function QuotationsPage() {
     };
     setQuotations([newQuo, ...quotations]);
     setIsModalOpen(false);
-    setFormData({ customer: '', title: '', total: '$15,000.00', expiryDate: '2026-11-30', rep: 'Elena Rostova' });
+    setFormData({ customer: '', title: '', total: '₹1,50,000.00', expiryDate: '2026-11-30', rep: 'Elena Rostova' });
   };
 
   return (
@@ -85,7 +86,7 @@ export default function QuotationsPage() {
           addNewLabel="New Quotation"
           onAddNew={() => setIsModalOpen(true)}
           onExport={() => alert('Exporting quotations...')}
-          onView={(item) => alert(`Viewing quotation ${item.id}`)}
+          onView={(item) => setViewingQuote(item)}
           onEdit={(item) => alert(`Editing quote: ${item.id}`)}
           onDelete={(item) => {
             if (confirm(`Delete quote ${item.id}?`)) {
@@ -100,6 +101,52 @@ export default function QuotationsPage() {
             { label: 'Declined', value: 'Declined' }
           ]}
         />
+
+        {/* View Quotation Detail Modal (Preserves list scroll position) */}
+        {viewingQuote && (
+          <Modal
+            isOpen={!!viewingQuote}
+            onClose={() => setViewingQuote(null)}
+            title={`Quotation Details — ${viewingQuote.id}`}
+            subtitle="Commercial subscription proposal specifications and valid terms"
+            footer={
+              <button
+                type="button"
+                onClick={() => setViewingQuote(null)}
+                className="px-4 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"
+              >
+                Close
+              </button>
+            }
+          >
+            <div className="space-y-4 text-xs">
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-slate-900 text-sm">{viewingQuote.title}</span>
+                  <Badge status={viewingQuote.status} />
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-slate-600 pt-2 border-t border-slate-200/60">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Customer: <strong className="text-slate-800">{viewingQuote.customer}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <User className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Sales Rep: <strong className="text-slate-800">{viewingQuote.rep}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Valid Until: <strong className="text-slate-800">{viewingQuote.expiryDate}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Total Amount: <strong className="text-slate-900">{viewingQuote.total}</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}
 
         {/* Add Quotation Modal */}
         <Modal
@@ -147,7 +194,7 @@ export default function QuotationsPage() {
                   required
                   value={formData.customer}
                   onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
-                  placeholder="e.g. Apex Global Logistics"
+                  placeholder="e.g. Tata Consultancy Services"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
                 />
               </div>
@@ -174,7 +221,7 @@ export default function QuotationsPage() {
                   required
                   value={formData.total}
                   onChange={(e) => setFormData({ ...formData, total: e.target.value })}
-                  placeholder="$24,000.00"
+                  placeholder="₹2,40,000.00"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
                 />
               </div>

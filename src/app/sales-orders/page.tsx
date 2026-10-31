@@ -6,15 +6,16 @@ import { DataTable, Column } from '@/components/ui/DataTable';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
 import { SALES_ORDERS_DATA } from '@/data/mockData';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Building2, Calendar, FileSpreadsheet, IndianRupee, CheckCircle } from 'lucide-react';
 
 export default function SalesOrdersPage() {
   const [orders, setOrders] = useState(SALES_ORDERS_DATA);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewingOrder, setViewingOrder] = useState<typeof SALES_ORDERS_DATA[0] | null>(null);
   const [formData, setFormData] = useState({
     customer: '',
     quotationId: 'Direct Order',
-    amount: '$12,000.00'
+    amount: '₹1,20,000.00'
   });
 
   const columns: Column<typeof SALES_ORDERS_DATA[0]>[] = [
@@ -68,7 +69,7 @@ export default function SalesOrdersPage() {
     };
     setOrders([newOrder, ...orders]);
     setIsModalOpen(false);
-    setFormData({ customer: '', quotationId: 'Direct Order', amount: '$12,000.00' });
+    setFormData({ customer: '', quotationId: 'Direct Order', amount: '₹1,20,000.00' });
   };
 
   return (
@@ -84,7 +85,7 @@ export default function SalesOrdersPage() {
           addNewLabel="New Sales Order"
           onAddNew={() => setIsModalOpen(true)}
           onExport={() => alert('Exporting sales orders...')}
-          onView={(item) => alert(`Order ${item.id}`)}
+          onView={(item) => setViewingOrder(item)}
           onEdit={(item) => alert(`Editing order: ${item.id}`)}
           onDelete={(item) => {
             if (confirm(`Cancel sales order ${item.id}?`)) {
@@ -97,6 +98,56 @@ export default function SalesOrdersPage() {
             { label: 'Processing', value: 'Processing' }
           ]}
         />
+
+        {/* View Order Detail Modal (Preserves list scroll position) */}
+        {viewingOrder && (
+          <Modal
+            isOpen={!!viewingOrder}
+            onClose={() => setViewingOrder(null)}
+            title={`Sales Order Details — ${viewingOrder.id}`}
+            subtitle="Confirmed booking parameters, linked quotation, and provisioning state"
+            footer={
+              <button
+                type="button"
+                onClick={() => setViewingOrder(null)}
+                className="px-4 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"
+              >
+                Close
+              </button>
+            }
+          >
+            <div className="space-y-4 text-xs">
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-slate-900 text-sm">{viewingOrder.id}</span>
+                  <Badge status={viewingOrder.status} />
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-slate-600 pt-2 border-t border-slate-200/60">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Customer: <strong className="text-slate-800">{viewingOrder.customer}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FileSpreadsheet className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Quotation Ref: <strong className="text-slate-800">{viewingOrder.quotationId}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Order Date: <strong className="text-slate-800">{viewingOrder.orderDate}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Total Value: <strong className="text-slate-900">{viewingOrder.amount}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 col-span-2">
+                    <CheckCircle className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Provisioning Status: <Badge status={viewingOrder.fulfillment} /></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}
 
         {/* Add Order Modal */}
         <Modal
@@ -131,7 +182,7 @@ export default function SalesOrdersPage() {
                 required
                 value={formData.customer}
                 onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
-                placeholder="e.g. Acme Technologies Inc."
+                placeholder="e.g. Tata Consultancy Services"
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
@@ -155,7 +206,7 @@ export default function SalesOrdersPage() {
                   required
                   value={formData.amount}
                   onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                  placeholder="$14,400.00"
+                  placeholder="₹1,44,000.00"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
                 />
               </div>

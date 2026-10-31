@@ -13,7 +13,7 @@ export default function SubscriptionPlansPage() {
   const [formData, setFormData] = useState({
     name: '',
     code: '',
-    price: '$799',
+    price: '₹59,999',
     billingFrequency: 'Monthly',
     seats: 'Up to 50 Users',
     features: 'Unlimited Billing Runs, Priority Support, Custom Invoicing'
@@ -34,7 +34,7 @@ export default function SubscriptionPlansPage() {
     };
     setPlans([...plans, newPlan]);
     setIsModalOpen(false);
-    setFormData({ name: '', code: '', price: '$799', billingFrequency: 'Monthly', seats: 'Up to 50 Users', features: '' });
+    setFormData({ name: '', code: '', price: '₹59,999', billingFrequency: 'Monthly', seats: 'Up to 50 Users', features: '' });
   };
 
   return (
@@ -178,7 +178,7 @@ export default function SubscriptionPlansPage() {
                   required
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="$799"
+                  placeholder="₹59,999"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
                 />
               </div>

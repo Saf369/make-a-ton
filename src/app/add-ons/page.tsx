@@ -14,7 +14,7 @@ export default function AddOnsPage() {
   const [formData, setFormData] = useState({
     name: '',
     code: '',
-    unitPrice: '$49.00/mo',
+    unitPrice: '₹3,999/mo',
     billingType: 'Recurring',
     description: ''
   });
@@ -74,7 +74,7 @@ export default function AddOnsPage() {
     };
     setAddons([newAddon, ...addons]);
     setIsModalOpen(false);
-    setFormData({ name: '', code: '', unitPrice: '$49.00/mo', billingType: 'Recurring', description: '' });
+    setFormData({ name: '', code: '', unitPrice: '₹3,999/mo', billingType: 'Recurring', description: '' });
   };
 
   return (
@@ -157,7 +157,7 @@ export default function AddOnsPage() {
                   required
                   value={formData.unitPrice}
                   onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
-                  placeholder="$75.00/mo"
+                  placeholder="₹5,999/mo"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
                 />
               </div>

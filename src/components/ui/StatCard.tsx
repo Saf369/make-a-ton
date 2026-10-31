@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  IndianRupee,
   DollarSign,
   Repeat,
   TrendingUp,
@@ -23,7 +24,8 @@ interface StatCardProps {
 }
 
 const iconMap: Record<string, React.ElementType> = {
-  DollarSign,
+  IndianRupee,
+  DollarSign: IndianRupee, // Standardize currency cards to Indian Rupee icon
   Repeat,
   TrendingUp,
   Percent,

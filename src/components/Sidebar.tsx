@@ -53,6 +53,25 @@ interface ModuleGroup {
 
 export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) => {
   const pathname = usePathname();
+  const navContainerRef = React.useRef<HTMLDivElement>(null);
+
+  // Preserve sidebar scroll position across route navigations
+  React.useEffect(() => {
+    if (!navContainerRef.current) return;
+    const saved = sessionStorage.getItem('brightloop_sidebar_scroll');
+    if (saved !== null) {
+      navContainerRef.current.scrollTop = Number(saved);
+    } else {
+      const activeEl = navContainerRef.current.querySelector('[data-active="true"]');
+      if (activeEl) {
+        activeEl.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }, [pathname]);
+
+  const handleSidebarScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    sessionStorage.setItem('brightloop_sidebar_scroll', String(e.currentTarget.scrollTop));
+  };
 
   // Exactly the 4 required modules:
   const modules: ModuleGroup[] = [
@@ -156,7 +175,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
         </div>
 
         {/* Scrollable Navigation */}
-        <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div
+          ref={navContainerRef}
+          onScroll={handleSidebarScroll}
+          className="flex-1 overflow-y-auto px-3 py-4 space-y-6"
+        >
           {modules.map((group) => (
             <div key={group.name} className="space-y-1">
               <h4 className="px-3 text-[10px] font-bold text-indigo-300/80 uppercase tracking-wider mb-2">
@@ -170,6 +193,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, onCloseMobile }) =
                     <Link
                       key={item.href}
                       href={item.href}
+                      data-active={active}
                       onClick={onCloseMobile}
                       className={`flex items-center gap-3 px-3 py-2 text-xs rounded-xl font-medium transition-all ${
                         active

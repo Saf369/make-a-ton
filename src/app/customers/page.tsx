@@ -79,15 +79,15 @@ export default function CustomersPage() {
       company: formData.company || 'New Enterprise Client',
       contact: formData.contact || 'Main Contact',
       email: formData.email || 'contact@client.com',
-      phone: formData.phone || '+1 555-0100',
+      phone: formData.phone || '+91 98200 12345',
       country: formData.country,
-      totalSpent: '$0.00',
+      totalSpent: '₹0.00',
       activeSubs: 1,
       status: 'Active'
     };
     setCustomers([newCust, ...customers]);
     setIsModalOpen(false);
-    setFormData({ company: '', contact: '', email: '', phone: '', country: 'United States' });
+    setFormData({ company: '', contact: '', email: '', phone: '', country: 'India' });
   };
 
   return (
@@ -105,11 +105,11 @@ export default function CustomersPage() {
           />
           <StatCard
             title="Avg Customer LTV"
-            value="$19,750"
-            change="+$1,450"
+            value="₹16,50,000"
+            change="+₹1,25,000"
             trend="up"
             period="high retention"
-            iconName="DollarSign"
+            iconName="IndianRupee"
           />
           <StatCard
             title="Customer Portal Logins"

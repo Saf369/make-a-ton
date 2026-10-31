@@ -19,7 +19,7 @@ export default function SubscriptionsPage() {
     customer: '',
     plan: 'Growth Pro Tier',
     billingCycle: 'Monthly',
-    amount: '$499/mo'
+    amount: '₹39,999/mo'
   });
 
   const columns: Column<typeof RECENT_SUBSCRIPTIONS[0]>[] = [
@@ -89,7 +89,7 @@ export default function SubscriptionsPage() {
     };
     setSubscriptions([newSub, ...subscriptions]);
     setIsModalOpen(false);
-    setFormData({ customer: '', plan: 'Growth Pro Tier', billingCycle: 'Monthly', amount: '$499/mo' });
+    setFormData({ customer: '', plan: 'Growth Pro Tier', billingCycle: 'Monthly', amount: '₹39,999/mo' });
   };
 
   return (
@@ -107,11 +107,11 @@ export default function SubscriptionsPage() {
           />
           <StatCard
             title="Contracted MRR"
-            value="$243,000"
-            change="+$18,500"
+            value="₹24,30,000"
+            change="+₹1,85,000"
             trend="up"
             period="in active billing"
-            iconName="DollarSign"
+            iconName="IndianRupee"
           />
           <StatCard
             title="At-Risk Accounts"
@@ -222,7 +222,7 @@ export default function SubscriptionsPage() {
                 required
                 value={formData.amount}
                 onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                placeholder="e.g. $499/mo"
+                placeholder="e.g. ₹39,999/mo"
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
               />
             </div>

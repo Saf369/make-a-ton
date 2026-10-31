@@ -19,16 +19,16 @@ export default function ReportsPage() {
   const [dateRange, setDateRange] = useState('Last 30 Days');
 
   const mrrMovements = [
-    { period: 'October 2026', starting: '$224,500', newMrr: '+$24,800', expansion: '+$9,200', contraction: '-$3,100', churn: '-$12,400', ending: '$243,000', netGrowth: '+8.2%' },
-    { period: 'September 2026', starting: '$208,900', newMrr: '+$22,100', expansion: '+$7,400', contraction: '-$2,800', churn: '-$11,100', ending: '$224,500', netGrowth: '+7.4%' },
-    { period: 'August 2026', starting: '$195,400', newMrr: '+$20,400', expansion: '+$6,800', contraction: '-$1,900', churn: '-$11,800', ending: '$208,900', netGrowth: '+6.9%' },
-    { period: 'July 2026', starting: '$182,000', newMrr: '+$19,200', expansion: '+$5,900', contraction: '-$1,700', churn: '-$10,000', ending: '$195,400', netGrowth: '+7.3%' }
+    { period: 'October 2026', starting: '₹22,45,000', newMrr: '+₹2,48,000', expansion: '+₹92,000', contraction: '-₹31,000', churn: '-₹1,24,000', ending: '₹24,30,000', netGrowth: '+8.2%' },
+    { period: 'September 2026', starting: '₹20,89,000', newMrr: '+₹2,21,000', expansion: '+₹74,000', contraction: '-₹28,000', churn: '-₹1,11,000', ending: '₹22,45,000', netGrowth: '+7.4%' },
+    { period: 'August 2026', starting: '₹19,54,000', newMrr: '+₹2,04,000', expansion: '+₹68,000', contraction: '-₹19,000', churn: '-₹1,18,000', ending: '₹20,89,000', netGrowth: '+6.9%' },
+    { period: 'July 2026', starting: '₹18,20,000', newMrr: '+₹1,92,000', expansion: '+₹59,000', contraction: '-₹17,000', churn: '-₹1,00,000', ending: '₹19,54,000', netGrowth: '+7.3%' }
   ];
 
   const planPerformance = [
-    { plan: 'Enterprise Cloud Plus', activeCount: 770, mrrContribution: '$92,400', share: '38.0%', avgRenewal: '99.1%' },
-    { plan: 'Growth Pro Tier', activeCount: 2210, mrrContribution: '$110,279', share: '45.4%', avgRenewal: '96.4%' },
-    { plan: 'Starter Team', activeCount: 1840, mrrContribution: '$40,321', share: '16.6%', avgRenewal: '94.2%' }
+    { plan: 'Enterprise Cloud Plus', activeCount: 770, mrrContribution: '₹9,24,000', share: '38.0%', avgRenewal: '99.1%' },
+    { plan: 'Growth Pro Tier', activeCount: 2210, mrrContribution: '₹11,02,790', share: '45.4%', avgRenewal: '96.4%' },
+    { plan: 'Starter Team', activeCount: 1840, mrrContribution: '₹4,03,210', share: '16.6%', avgRenewal: '94.2%' }
   ];
 
   return (
@@ -75,24 +75,24 @@ export default function ReportsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Annual Run Rate (ARR)"
-            value="$2,916,000"
+            value="₹2,91,60,000"
             change="+18.4%"
             trend="up"
             period="vs last year"
-            iconName="DollarSign"
+            iconName="IndianRupee"
           />
           <StatCard
             title="Average Revenue Per User (ARPU)"
-            value="$50.41"
-            change="+$4.20"
+            value="₹4,200"
+            change="+₹350"
             trend="up"
             period="vs last quarter"
             iconName="TrendingUp"
           />
           <StatCard
             title="Customer Lifetime Value (LTV)"
-            value="$3,550"
-            change="+$320"
+            value="₹2,95,000"
+            change="+₹26,500"
             trend="up"
             period="calculated on 1.4% churn"
             iconName="Repeat"

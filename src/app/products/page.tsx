@@ -17,7 +17,7 @@ export default function ProductsPage() {
     sku: '',
     category: 'Software Platforms',
     type: 'Recurring SaaS',
-    basePrice: '$199.00 / mo'
+    basePrice: '₹14,999.00 / mo'
   });
 
   const columns: Column<typeof PRODUCTS_DATA[0]>[] = [
@@ -69,12 +69,12 @@ export default function ProductsPage() {
       sku: formData.sku || `BL-SKU-${products.length + 1}`,
       category: formData.category,
       type: formData.type,
-      basePrice: formData.basePrice || '$99.00 / mo',
+      basePrice: formData.basePrice || '₹7,999.00 / mo',
       status: 'Active'
     };
     setProducts([newProduct, ...products]);
     setIsModalOpen(false);
-    setFormData({ name: '', sku: '', category: 'Software Platforms', type: 'Recurring SaaS', basePrice: '$199.00 / mo' });
+    setFormData({ name: '', sku: '', category: 'Software Platforms', type: 'Recurring SaaS', basePrice: '₹14,999.00 / mo' });
   };
 
   return (
@@ -92,11 +92,11 @@ export default function ProductsPage() {
           />
           <StatCard
             title="Avg Product ARPU"
-            value="$420.00"
+            value="₹32,500.00"
             change="+6.2%"
             trend="up"
             period="per active subscription"
-            iconName="DollarSign"
+            iconName="IndianRupee"
           />
           <StatCard
             title="Product Categories"
@@ -190,7 +190,7 @@ export default function ProductsPage() {
                   required
                   value={formData.basePrice}
                   onChange={(e) => setFormData({ ...formData, basePrice: e.target.value })}
-                  placeholder="e.g. $149.00 / mo"
+                  placeholder="e.g. ₹14,999.00 / mo"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
                 />
               </div>

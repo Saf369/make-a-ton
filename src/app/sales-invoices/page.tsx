@@ -7,16 +7,17 @@ import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
 import { StatCard } from '@/components/ui/StatCard';
 import { RECENT_INVOICES } from '@/data/mockData';
-import { FileCheck2, Download, DollarSign, Clock, AlertCircle } from 'lucide-react';
+import { FileCheck2, Download, IndianRupee, Clock, AlertCircle, Building2, Calendar, CreditCard } from 'lucide-react';
 
 export default function SalesInvoicesPage() {
   const [invoices, setInvoices] = useState(RECENT_INVOICES);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewingInvoice, setViewingInvoice] = useState<typeof RECENT_INVOICES[0] | null>(null);
   const [formData, setFormData] = useState({
     customer: '',
-    amount: '$4,500.00',
+    amount: '₹45,000.00',
     dueDate: '2026-11-15',
-    method: 'Credit Card (Stripe)'
+    method: 'NEFT / RTGS (HDFC Bank)'
   });
 
   const columns: Column<typeof RECENT_INVOICES[0]>[] = [
@@ -70,7 +71,7 @@ export default function SalesInvoicesPage() {
     };
     setInvoices([newInv, ...invoices]);
     setIsModalOpen(false);
-    setFormData({ customer: '', amount: '$4,500.00', dueDate: '2026-11-15', method: 'Credit Card (Stripe)' });
+    setFormData({ customer: '', amount: '₹45,000.00', dueDate: '2026-11-15', method: 'NEFT / RTGS (HDFC Bank)' });
   };
 
   return (
@@ -80,15 +81,15 @@ export default function SalesInvoicesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard
             title="Total Invoiced This Month"
-            value="$184,200.00"
+            value="₹18,42,000.00"
             change="+9.5%"
             trend="up"
             period="vs last month"
-            iconName="DollarSign"
+            iconName="IndianRupee"
           />
           <StatCard
             title="Paid & Reconciled"
-            value="$168,400.00"
+            value="₹16,84,000.00"
             change="91.4% collected"
             trend="up"
             period="healthy cash flow"
@@ -96,7 +97,7 @@ export default function SalesInvoicesPage() {
           />
           <StatCard
             title="Overdue / Pending"
-            value="$15,800.00"
+            value="₹1,58,000.00"
             change="3 invoices"
             trend="down"
             period="in dunning retry"
@@ -114,11 +115,11 @@ export default function SalesInvoicesPage() {
           addNewLabel="Create Invoice"
           onAddNew={() => setIsModalOpen(true)}
           onExport={() => alert('Exporting all sales invoices to CSV...')}
-          onView={(item) => alert(`Viewing invoice ${item.invoiceNumber}`)}
+          onView={(item) => setViewingInvoice(item)}
           onEdit={(item) => alert(`Editing invoice ${item.invoiceNumber}`)}
           onDelete={(item) => {
             if (confirm(`Void invoice ${item.invoiceNumber}?`)) {
-              setInvoices(invoices.filter((i) => i.invoiceNumber !== item.invoiceNumber));
+              setInvoices(invoices.filter((inv) => inv.invoiceNumber !== item.invoiceNumber));
             }
           }}
           filterKey="status"
@@ -130,12 +131,62 @@ export default function SalesInvoicesPage() {
           ]}
         />
 
+        {/* View Invoice Detail Modal (Preserves list scroll position) */}
+        {viewingInvoice && (
+          <Modal
+            isOpen={!!viewingInvoice}
+            onClose={() => setViewingInvoice(null)}
+            title={`Invoice Details — ${viewingInvoice.invoiceNumber}`}
+            subtitle="Commercial invoice details, tax snapshots, and reconciliation status"
+            footer={
+              <button
+                type="button"
+                onClick={() => setViewingInvoice(null)}
+                className="px-4 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"
+              >
+                Close
+              </button>
+            }
+          >
+            <div className="space-y-4 text-xs">
+              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-slate-900 text-sm">{viewingInvoice.invoiceNumber}</span>
+                  <Badge status={viewingInvoice.status} />
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-slate-600 pt-2 border-t border-slate-200/60">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Customer: <strong className="text-slate-800">{viewingInvoice.customer}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <IndianRupee className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Total Billed: <strong className="text-slate-900">{viewingInvoice.amount}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Issue Date: <strong className="text-slate-800">{viewingInvoice.issueDate}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Due Date: <strong className="text-slate-800">{viewingInvoice.dueDate}</strong></span>
+                  </div>
+                  <div className="flex items-center gap-2 col-span-2">
+                    <CreditCard className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Payment Method: <strong className="text-slate-800">{viewingInvoice.method}</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        )}
+
         {/* Add Invoice Modal */}
         <Modal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          title="Issue New Sales Invoice"
-          subtitle="Generate an ad-hoc or milestone invoice for a corporate client"
+          title="Issue Manual Invoice"
+          subtitle="Generate an ad-hoc or standard subscription billing invoice"
           footer={
             <>
               <button
@@ -147,7 +198,7 @@ export default function SalesInvoicesPage() {
               </button>
               <button
                 type="submit"
-                form="add-inv-form"
+                form="add-invoice-form"
                 className="px-4 py-1.5 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-xs"
               >
                 Issue Invoice
@@ -155,7 +206,7 @@ export default function SalesInvoicesPage() {
             </>
           }
         >
-          <form id="add-inv-form" onSubmit={handleCreate} className="space-y-4 text-xs">
+          <form id="add-invoice-form" onSubmit={handleCreate} className="space-y-4 text-xs">
             <div>
               <label className="block font-semibold text-slate-700 mb-1">Customer Organization</label>
               <input
@@ -163,7 +214,7 @@ export default function SalesInvoicesPage() {
                 required
                 value={formData.customer}
                 onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
-                placeholder="e.g. Acme Technologies Inc."
+                placeholder="e.g. Tata Consultancy Services"
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
@@ -176,7 +227,7 @@ export default function SalesInvoicesPage() {
                   required
                   value={formData.amount}
                   onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                  placeholder="$4,500.00"
+                  placeholder="₹45,000.00"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
                 />
               </div>
@@ -194,16 +245,17 @@ export default function SalesInvoicesPage() {
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Payment Method</label>
+              <label className="block font-semibold text-slate-700 mb-1">Payment Method / Terms</label>
               <select
                 value={formData.method}
                 onChange={(e) => setFormData({ ...formData, method: e.target.value })}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
               >
-                <option>Credit Card (Stripe)</option>
-                <option>Direct Debit (ACH)</option>
-                <option>Wire Transfer</option>
-                <option>Corporate Purchase Order (Net 30)</option>
+                <option>NEFT / RTGS (HDFC Bank)</option>
+                <option>UPI (Google Pay / PhonePe)</option>
+                <option>Corporate Credit Card</option>
+                <option>Net Banking (ICICI Bank)</option>
+                <option>Invoice Net 15</option>
               </select>
             </div>
           </form>

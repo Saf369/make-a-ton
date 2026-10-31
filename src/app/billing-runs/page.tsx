@@ -79,7 +79,7 @@ export default function BillingRunsPage() {
       totalSubscriptions: 64,
       successCount: 64,
       failedCount: 0,
-      totalBilled: '$12,480.00',
+      totalBilled: '₹1,24,800.00',
       status: 'Completed'
     };
     setRuns([newRun, ...runs]);
@@ -101,11 +101,11 @@ export default function BillingRunsPage() {
           />
           <StatCard
             title="Recurring Charges Billed"
-            value="$153,980.00"
+            value="₹15,39,800.00"
             change="1,034 payments"
             trend="up"
             period="this calendar month"
-            iconName="DollarSign"
+            iconName="IndianRupee"
           />
           <StatCard
             title="Active Automated Schedules"

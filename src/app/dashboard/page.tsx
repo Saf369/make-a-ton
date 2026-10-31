@@ -64,8 +64,8 @@ export default function DashboardPage() {
             {/* Custom SVG Line Chart */}
             <div className="py-6">
               <div className="flex items-center justify-between text-xs text-slate-400 mb-2 px-2">
-                <span>Peak May: $243,000</span>
-                <span>Avg Run-rate: $198,500</span>
+                <span>Peak May: ₹24,30,000</span>
+                <span>Avg Run-rate: ₹19,85,000</span>
               </div>
               <div className="h-48 w-full relative">
                 <svg viewBox="0 0 500 160" className="w-full h-full overflow-visible">
@@ -106,7 +106,7 @@ export default function DashboardPage() {
                 <span>Feb</span>
                 <span>Mar</span>
                 <span>Apr</span>
-                <span className="font-semibold text-indigo-600">May ($243k)</span>
+                <span className="font-semibold text-indigo-600">May (₹24.3L)</span>
                 <span>Jun</span>
                 <span>Jul</span>
                 <span>Aug</span>
@@ -119,7 +119,7 @@ export default function DashboardPage() {
             <div className="grid grid-cols-3 gap-4 pt-3 border-t border-slate-100 text-xs">
               <div>
                 <p className="text-slate-400">Total Billed</p>
-                <p className="font-semibold text-slate-800 text-sm mt-0.5">$1.84M</p>
+                <p className="font-semibold text-slate-800 text-sm mt-0.5">₹1.84 Cr</p>
               </div>
               <div>
                 <p className="text-slate-400">Avg Monthly Growth</p>
@@ -143,7 +143,7 @@ export default function DashboardPage() {
                 <div className="flex-1">
                   <h4 className="text-sm font-bold text-slate-900">12 New Orders</h4>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Orders worth <span className="font-semibold text-slate-700">$18,500</span> received today.
+                    Orders worth <span className="font-semibold text-slate-700">₹1,85,000</span> received today.
                   </p>
                   <Link
                     href="/sales-orders"
@@ -168,7 +168,7 @@ export default function DashboardPage() {
                   <p className="text-xs text-indigo-100 mt-0.5">Accounts reached 90% seat limit</p>
                   <Link
                     href="/subscriptions"
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-300 hover:text-white mt-2.5"
+                    className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-300 hover:white mt-2.5"
                   >
                     <span>View Details</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -188,8 +188,8 @@ export default function DashboardPage() {
                   72% Collected
                 </span>
               </div>
-              <h4 className="text-xl font-bold text-slate-900">$98,500.00</h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">Available for payout in Stripe Connect</p>
+              <h4 className="text-xl font-bold text-slate-900">₹9,85,000.00</h4>
+              <p className="text-[11px] text-slate-400 mt-0.5">Available for payout via Razorpay / Direct NEFT</p>
               <div className="w-full bg-slate-100 h-2 rounded-full mt-3 overflow-hidden">
                 <div className="bg-indigo-600 h-full rounded-full" style={{ width: '72%' }} />
               </div>
@@ -255,7 +255,7 @@ export default function DashboardPage() {
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="text-slate-600">Software Platforms</span>
-                    <span className="font-semibold text-slate-800">45% ($109,350)</span>
+                    <span className="font-semibold text-slate-800">45% (₹10,93,500)</span>
                   </div>
                   <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                     <div className="bg-indigo-600 h-full rounded-full" style={{ width: '45%' }} />
@@ -265,7 +265,7 @@ export default function DashboardPage() {
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="text-slate-600">Developer APIs & Usage</span>
-                    <span className="font-semibold text-slate-800">35% ($85,050)</span>
+                    <span className="font-semibold text-slate-800">35% (₹8,50,500)</span>
                   </div>
                   <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                     <div className="bg-sky-500 h-full rounded-full" style={{ width: '35%' }} />
@@ -275,7 +275,7 @@ export default function DashboardPage() {
                 <div>
                   <div className="flex justify-between mb-1">
                     <span className="text-slate-600">Enterprise Add-ons</span>
-                    <span className="font-semibold text-slate-800">20% ($48,600)</span>
+                    <span className="font-semibold text-slate-800">20% (₹4,86,000)</span>
                   </div>
                   <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                     <div className="bg-emerald-500 h-full rounded-full" style={{ width: '20%' }} />

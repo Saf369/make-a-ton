@@ -126,11 +126,11 @@ export default function SubscriptionDetailsPage() {
                 </div>
                 <div>
                   <span className="text-slate-400">Annual Price</span>
-                  <p className="font-bold text-slate-900 mt-1 text-sm">$14,400.00 / yr</p>
+                  <p className="font-bold text-slate-900 mt-1 text-sm">₹14,40,000.00 / yr</p>
                 </div>
                 <div>
                   <span className="text-slate-400">Tax Application</span>
-                  <p className="font-semibold text-slate-800 mt-1">GCC VAT 5% ($720.00)</p>
+                  <p className="font-semibold text-slate-800 mt-1">GST 18% (₹2,59,200.00)</p>
                 </div>
                 <div>
                   <span className="text-slate-400">Contract Start Date</span>
@@ -143,7 +143,7 @@ export default function SubscriptionDetailsPage() {
                 <div>
                   <span className="text-slate-400">Auto-Renew Status</span>
                   <p className="font-semibold text-emerald-600 mt-1 flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Enabled (Credit Card)
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Enabled (Auto-Debit / e-NACH)
                   </p>
                 </div>
               </div>
@@ -167,14 +167,14 @@ export default function SubscriptionDetailsPage() {
                     <p className="font-semibold text-slate-800">Dedicated IP Address (2 instances)</p>
                     <p className="text-slate-400 text-[11px]">Static network endpoints</p>
                   </div>
-                  <span className="font-bold text-slate-900">$50.00 / mo</span>
+                  <span className="font-bold text-slate-900">₹4,000.00 / mo</span>
                 </div>
                 <div className="flex items-center justify-between p-3 rounded-lg border border-slate-100 bg-slate-50/50">
                   <div>
                     <p className="font-semibold text-slate-800">24/7 Dedicated Concierge Support</p>
                     <p className="text-slate-400 text-[11px]">Guaranteed 15-min enterprise response time</p>
                   </div>
-                  <span className="font-bold text-slate-900">$299.00 / mo</span>
+                  <span className="font-bold text-slate-900">₹25,000.00 / mo</span>
                 </div>
               </div>
             </div>
@@ -203,8 +203,8 @@ export default function SubscriptionDetailsPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {[
-                    { id: 'INV-2026-0982', date: '2026-10-15', amount: '$15,120.00', status: 'Paid' },
-                    { id: 'INV-2025-0540', date: '2025-10-15', amount: '$15,120.00', status: 'Paid' }
+                    { id: 'INV-2026-0982', date: '2026-10-15', amount: '₹16,99,200.00', status: 'Paid' },
+                    { id: 'INV-2025-0540', date: '2025-10-15', amount: '₹16,99,200.00', status: 'Paid' }
                   ].map((inv) => (
                     <tr key={inv.id} className="hover:bg-slate-50/70">
                       <td className="py-3 px-4 font-mono font-medium text-slate-900">{inv.id}</td>
@@ -237,18 +237,18 @@ export default function SubscriptionDetailsPage() {
               </h4>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center font-bold text-indigo-600 text-sm">
-                  AC
+                  TC
                 </div>
                 <div>
-                  <p className="font-bold text-slate-900 text-sm">Acme Technologies Inc.</p>
-                  <p className="text-slate-400">Account ID: CUST-501</p>
+                  <p className="font-bold text-slate-900 text-sm">Tata Consultancy Services Ltd.</p>
+                  <p className="text-slate-400">Account ID: CUST-IN-101</p>
                 </div>
               </div>
 
               <div className="pt-2 border-t border-slate-100 space-y-1.5 text-slate-600">
-                <p><strong className="text-slate-700">Billing Contact:</strong> Robert Vance</p>
-                <p><strong className="text-slate-700">Email:</strong> rvance@acmetech.com</p>
-                <p><strong className="text-slate-700">Location:</strong> United States (Avalara Tax)</p>
+                <p><strong className="text-slate-700">Billing Contact:</strong> Rajesh Sharma</p>
+                <p><strong className="text-slate-700">Email:</strong> r.sharma@tcs.example.com</p>
+                <p><strong className="text-slate-700">Location:</strong> Mumbai, Maharashtra (GSTIN: 27AAACT2727Q1ZW)</p>
               </div>
 
               <Link
@@ -269,14 +269,14 @@ export default function SubscriptionDetailsPage() {
                 <div className="flex items-center gap-2.5">
                   <CreditCard className="w-5 h-5 text-indigo-600" />
                   <div>
-                    <p className="font-semibold text-slate-900">Visa ending in 4242</p>
-                    <p className="text-[10px] text-slate-400">Expires 09/2029</p>
+                    <p className="font-semibold text-slate-900">Corporate RuPay / HDFC e-NACH</p>
+                    <p className="text-[10px] text-slate-400">Mandate: UMRN-88291048</p>
                   </div>
                 </div>
                 <Badge status="Active" />
               </div>
               <p className="text-[11px] text-slate-400">
-                Billed automatically on renewal date via Stripe Billing Gateway.
+                Billed automatically on renewal date via HDFC Corporate Banking & Razorpay.
               </p>
             </div>
           </div>

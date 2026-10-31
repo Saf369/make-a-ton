@@ -16,7 +16,7 @@ export default function ProductVariantsPage() {
     name: '',
     code: '',
     billingPeriod: 'Monthly',
-    price: '$149.00'
+    price: '₹11,999.00'
   });
 
   const columns: Column<typeof VARIANTS_DATA[0]>[] = [
@@ -69,12 +69,12 @@ export default function ProductVariantsPage() {
       name: formData.name || 'Custom Scale Variant',
       code: formData.code || `VAR-CODE-${variants.length + 1}`,
       billingPeriod: formData.billingPeriod,
-      price: formData.price || '$99.00',
+      price: formData.price || '₹7,999.00',
       status: 'Available'
     };
     setVariants([newVariant, ...variants]);
     setIsModalOpen(false);
-    setFormData({ product: 'Brightloop Hub Cloud', name: '', code: '', billingPeriod: 'Monthly', price: '$149.00' });
+    setFormData({ product: 'Brightloop Hub Cloud', name: '', code: '', billingPeriod: 'Monthly', price: '₹11,999.00' });
   };
 
   return (
@@ -187,7 +187,7 @@ export default function ProductVariantsPage() {
                   required
                   value={formData.price}
                   onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="$249.00"
+                  placeholder="₹18,999.00"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none"
                 />
               </div>

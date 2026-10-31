@@ -141,6 +141,7 @@ export function DataTable<T extends Record<string, any>>({
           {/* Export Button */}
           {onExport && (
             <button
+              type="button"
               onClick={onExport}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
             >
@@ -152,6 +153,7 @@ export function DataTable<T extends Record<string, any>>({
           {/* Add New Button */}
           {onAddNew && (
             <button
+              type="button"
               onClick={onAddNew}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 shadow-xs transition-colors"
             >
@@ -213,6 +215,7 @@ export function DataTable<T extends Record<string, any>>({
                       <div className="flex items-center justify-end gap-1 opacity-80 group-hover:opacity-100">
                         {onView && (
                           <button
+                            type="button"
                             onClick={() => onView(item)}
                             title="View Details"
                             className="p-1 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
@@ -222,6 +225,7 @@ export function DataTable<T extends Record<string, any>>({
                         )}
                         {onEdit && (
                           <button
+                            type="button"
                             onClick={() => onEdit(item)}
                             title="Edit"
                             className="p-1 rounded-md text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
@@ -231,6 +235,7 @@ export function DataTable<T extends Record<string, any>>({
                         )}
                         {onDelete && (
                           <button
+                            type="button"
                             onClick={() => onDelete(item)}
                             title="Delete"
                             className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
@@ -264,6 +269,7 @@ export function DataTable<T extends Record<string, any>>({
 
         <div className="flex items-center gap-1.5">
           <button
+            type="button"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
             className="p-1.5 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
@@ -274,6 +280,7 @@ export function DataTable<T extends Record<string, any>>({
             {currentPage} / {totalPages}
           </span>
           <button
+            type="button"
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
             className="p-1.5 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
